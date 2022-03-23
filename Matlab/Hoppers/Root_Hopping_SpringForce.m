@@ -21,7 +21,7 @@ tlist = [];
 
 %% Plug in the ode files for flight/contact and event functions for phase switching
 ODE_flight = @(t,statevar) ODE_Flight(t,statevar,params);
-ODE_contact = @(t,statevar) ODE_Contact(t,statevar,params);
+ODE_contact = @(t,statevar) ODE_Contact_SpringForce(t,statevar,params);
 Event_1 = @(t,statevar) Event_FlightToContact(t,statevar,params);
 Event_2 = @(t,statevar) Event_ContactToFlight(t,statevar,params);
 
