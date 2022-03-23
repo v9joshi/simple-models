@@ -1,12 +1,17 @@
-% ODE file for contact phase of hopping
+% ODE file for contact phase of hopping with a springy leg
 function dstatevar = ODE_Contact_SpringForce(~,statevar,params)
 
-g = params.g; k = params.k; L0 = params.L0; m = params.m;
+    % Unpack the important parameters
+    g = params.g; k = params.k; L0 = params.L0; m = params.m;
 
-y = statevar(1);
-v = statevar(2);
+    % Read the state
+    y = statevar(1);
+    v = statevar(2);
 
-dstatevar = [v; -g + k*(L0-y)/m];
-
+    % Calculate the contact force
+    F = k*(L0 - y);
+    
+    % Calculate the state derivative
+    dstatevar = [v; -g + F/m];
 end
 
