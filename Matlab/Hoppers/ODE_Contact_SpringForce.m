@@ -1,5 +1,5 @@
 % ODE file for contact phase of hopping
-function dstatevar = ODE_Contact(t,statevar,params)
+function dstatevar = ODE_Contact_SpringForce(~,statevar,params)
 
 g = params.g; k = params.k; L0 = params.L0; m = params.m;
 

@@ -1,10 +1,21 @@
 % Set some constants
-L0 = 1; % Length of the leg
+y0 = 1.5; v0 = 0; % Initial state
+L0 = 1;  % Length of the leg
+m  = 70; % body mass
+g  = 10; % gravitational acc
+k = 2800;
+F0_const = 1400;
+F0_sinus = 700*pi;
+T0 = 2/(pi*sqrt(10));
 
 %% Load data from all the hoppers
-springHopper     = load('hopper_spring_force.mat');
-constantHopper   = load('hopper_constant_force.mat');
-sinusoidalHopper = load('hopper_sinusoidal_force.mat');
+% springHopper     = load('hopper_spring_force.mat');
+% constantHopper   = load('hopper_constant_force.mat');
+% sinusoidalHopper = load('hopper_sinusoidal_force.mat');
+
+springHopper     = Root_Hopping_SpringForce(y0, v0, m, g, L0, k, 0);
+constantHopper   = Root_Hopping_ConstantForce(y0, v0, m, g, L0, F0_const, 0);
+sinusoidalHopper = Root_Hopping_SinusoidalForce(y0, v0, m, g, L0, F0_sinus, T0, 0);
 
 %% sync the hoppers
 minTime = max([springHopper.tlist(1), constantHopper.tlist(1), sinusoidalHopper.tlist(1)]);
@@ -15,15 +26,21 @@ tlist = linspace(minTime,maxTime,2000);
 ySpring = interp1(springHopper.tlist, springHopper.ylist, tlist);
 yConst  = interp1(constantHopper.tlist, constantHopper.ylist, tlist);
 ySinus = interp1(sinusoidalHopper.tlist, sinusoidalHopper.ylist, tlist);
+
+fSpring = interp1(springHopper.tlist, springHopper.Flist, tlist)*100/(m*g);
+fConst  = interp1(constantHopper.tlist, constantHopper.Flist, tlist)*100/(m*g);
+fSinus  = interp1(sinusoidalHopper.tlist, sinusoidalHopper.Flist, tlist)*100/(m*g);
  
 %% animate
 figure(1)
 set(gcf, 'color','w')
+
+% Plot the hoppers
 subplot(1,2,1)
-mass_spring = plot(-1,ySpring(1),'ro','markerfacecolor','r');
+mass_spring = plot(-1,ySpring(1),'ro','markerfacecolor','r','markersize',20);
 hold on
-mass_const = plot(0,yConst(1),'bo','markerfacecolor','b');
-mass_sinus = plot(1,ySinus(1),'ko','markerfacecolor','k');
+mass_const = plot(0,yConst(1),'bo','markerfacecolor','b','markersize',20);
+mass_sinus = plot(1,ySinus(1),'ko','markerfacecolor','k','markersize',20);
 
 leg_spring = plot([-1,-1],[max(ySpring(1) - L0,0), ySpring(1)],'k--');
 leg_const = plot([0,0],[max(yConst(1) - L0,0), yConst(1)],'k--');
@@ -33,34 +50,42 @@ plot([-3,3],[0,0],'color',[0,0.5,0],'LineStyle','-','linewidth',3)
 axis([-3 3 -1 max(ylist)+1]);
 set(gca,'visible','off')
 hold off
+legend([mass_spring, mass_const, mass_sinus],{'Spring', 'Constant', 'Sinusoidal'},'orientation','horizontal')
 
-subplot(3,2,2)
+% Plot the CoM height
+subplot(2,2,2)
+% Plot the time series
 plot(tlist, ySpring,'r')
 hold on
-vertline_spring = plot([tlist(1), tlist(1)],[min(ySpring), max(ySpring)],'k--');
-point_spring = plot(tlist(1), ySpring(1),'ro','markerfacecolor','r');
-hold off
-axis([min(tlist) max(tlist) min(ySpring) max(ySpring)]);
-ylabel('mass height (m)')
-
-subplot(3,2,4)
 plot(tlist, yConst,'b')
-hold on
-vertline_const = plot([tlist(1), tlist(1)],[min(yConst), max(yConst)],'k--');
-point_const = plot(tlist(1), yConst(1),'bo','markerfacecolor','b');
-hold off
-axis([min(tlist) max(tlist) min(yConst) max(yConst)]);
-ylabel('mass height (m)')
-
-subplot(3,2,6)
 plot(tlist, ySinus,'k')
-hold on
-vertline_sinus = plot([tlist(1), tlist(1)],[min(ySinus), max(ySinus)],'k--');
+% Make a vertical line for the current time
+vertline_spring = plot([tlist(1), tlist(1)],[min(ySpring), max(ySpring)],'k--');
+
+% Mark a point at the current time in the time-series
+point_spring = plot(tlist(1), ySpring(1),'ro','markerfacecolor','r');
+point_const = plot(tlist(1), yConst(1),'bo','markerfacecolor','b');
 point_sinus = plot(tlist(1), ySinus(1),'ko','markerfacecolor','k');
 hold off
-axis([min(tlist) max(tlist) min(ySinus) max(ySinus)]);
+axis([min(tlist) max(tlist) 0 2]);
 ylabel('mass height (m)')
-xlabel('time (s)')
+
+% Plot the contact forces
+subplot(2,2,4)
+bar(-1,max(fSpring),'edgecolor','r','facecolor','w');
+hold on
+bar_spring = bar(-1,fSpring(1),'r');
+bar(0,max(fConst),'edgecolor','b','facecolor','w');
+bar_const = bar(0,fConst(1),'b');
+bar(1,max(fSinus),'edgecolor','k','facecolor','w');
+bar_sinus = bar(1,fSinus(1),'k');
+hold off
+ylim([0, max([max(fSpring), max(fConst),max(fSinus)])*1.2])
+xlim([-3,3])
+ylabel('Contact force (%Body weight)')
+set(gca,'box','off')
+xticks([-1, 0, 1])
+xticklabels({'Spring', 'Constant', 'Sinusoidal'})
 
 % Run the animation
 for i = 2:2:length(tlist)
@@ -74,11 +99,14 @@ for i = 2:2:length(tlist)
     set(leg_const,'ydata',[max(yConst(i) - L0,0), yConst(i)])
     set(leg_sinus,'ydata',[max(ySinus(i) - L0,0), ySinus(i)])
     
+    % Modify the bars
+    set(bar_spring,'ydata',fSpring(i));
+    set(bar_const,'ydata',fConst(i));
+    set(bar_sinus,'ydata',fSinus(i));
+    
     % Move the vertical scan line
     set(vertline_spring,'xdata',[tlist(i), tlist(i)])
-    set(vertline_const,'xdata',[tlist(i), tlist(i)])
-    set(vertline_sinus,'xdata',[tlist(i), tlist(i)])
-    
+   
     % Move the point
     set(point_spring,'xdata',tlist(i), 'ydata', ySpring(i))
     set(point_const,'xdata',tlist(i), 'ydata',yConst(i))
