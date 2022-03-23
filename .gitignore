@@ -1,5 +1,6 @@
-# Object file
-*.o
+# Matlab save files
+*.asv
 
-# Ada Library Information
-*.ali
+# Matlab figure files
+*.fig
+
