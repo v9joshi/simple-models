@@ -3,7 +3,9 @@ y0 = 1.5; v0 = 0; % Initial state
 L0 = 1;  % Length of the leg
 m  = 70; % body mass
 g  = 10; % gravitational acc
-k = 2800; % Spring constant for spring hopper
+
+% Set the control parameters for the hoppers
+k = 2881; % Spring constant for spring hopper
 F0_const = 1400; % Force value for constant force hopper
 F0_sinus = 700*pi; % Max force for sinusoidal hopper
 T0 = 2/(pi*sqrt(10)); % Time constant for sinusoidal hopper
