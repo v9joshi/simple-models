@@ -3,10 +3,10 @@ y0 = 1.5; v0 = 0; % Initial state
 L0 = 1;  % Length of the leg
 m  = 70; % body mass
 g  = 10; % gravitational acc
-k = 2800;
-F0_const = 1400;
-F0_sinus = 700*pi;
-T0 = 2/(pi*sqrt(10));
+k = 2800; % Spring constant for spring hopper
+F0_const = 1400; % Force value for constant force hopper
+F0_sinus = 700*pi; % Max force for sinusoidal hopper
+T0 = 2/(pi*sqrt(10)); % Time constant for sinusoidal hopper
 
 %% Load data from all the hoppers
 % springHopper     = load('hopper_spring_force.mat');
@@ -32,8 +32,8 @@ fConst  = interp1(constantHopper.tlist, constantHopper.Flist, tlist)*100/(m*g);
 fSinus  = interp1(sinusoidalHopper.tlist, sinusoidalHopper.Flist, tlist)*100/(m*g);
  
 %% animate
-figure(1)
-set(gcf, 'color','w')
+figure(4)
+set(gcf, 'color','w','Position', get(0, 'Screensize'));
 
 % Plot the hoppers
 subplot(1,2,1)
