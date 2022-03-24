@@ -1,6 +1,6 @@
 % Program to Simulate Spring-Mass hopper
 % clear all; close all; clc;
-function outputStruct = Root_Hopping_SpringForce(y0, v0, m , g, L0, k, doPlots)
+function outputStruct = Root_Hopping_SpringForce(y0, v0, m, g, L0, k, doPlots)
 
     % Parameters
     % g = 10; k = 2800; L0 = 1; m = 70;
