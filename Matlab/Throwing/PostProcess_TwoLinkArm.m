@@ -5,7 +5,7 @@ function []= PostProcess_TwoLinkArm(pinput,params)
     global numel 
 
     % Initial angle and angular velocity of the arm
-    theta = params.init_theta';
+    theta  = params.init_theta';
     dtheta = params.init_dtheta';
 
     % Loop for each segment of the discretized motion
@@ -30,7 +30,7 @@ function []= PostProcess_TwoLinkArm(pinput,params)
     theta1 = theta(:,1); dtheta1 = dtheta(:,1);
     theta2 = theta(:,2); dtheta2 = dtheta(:,2);
     
-    tlist = linspace(0,1, length(theta1));      
+    tlist = linspace(0,params.totalTime, length(theta1));      
     
     % Calculate hand position given angles
     HandPosition_x = params.l1*cos(theta(end,1))+params.l2*cos(theta(end,1)+theta(end,2));

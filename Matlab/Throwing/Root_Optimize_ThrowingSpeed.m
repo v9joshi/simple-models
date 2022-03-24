@@ -20,7 +20,8 @@ params.g =  10; % Non-dimensionalize gravity to change time scale
 params.I1 = params.m1*(0.542^2 - params.r1^2); 
 params.I2 = params.m2*(0.827^2 - params.r2^2);
 
-params.time = 1/numel; % Time taken in each segment
+params.totalTime = 1;  % Total time is 1 s
+params.time = params.totalTime/numel; % Time taken in each segment is equal
 
 % Holding your arm out straight forward produces a torque requirement of 15
 mintorque = -30; % minimum torque
