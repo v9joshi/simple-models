@@ -49,7 +49,7 @@ leg_const = plot([0,0],[max(yConst(1) - L0,0), yConst(1)],'k--');
 leg_sinus = plot([1,1],[max(ySinus(1) - L0,0), ySinus(1)],'k--');
 
 plot([-3,3],[0,0],'color',[0,0.5,0],'LineStyle','-','linewidth',3)
-axis([-3 3 -1 max(ylist)+1]);
+axis([-3 3 -1 max(ySpring)+1]);
 set(gca,'visible','off')
 hold off
 legend([mass_spring, mass_const, mass_sinus],{'Spring', 'Constant', 'Sinusoidal'},'orientation','horizontal')
