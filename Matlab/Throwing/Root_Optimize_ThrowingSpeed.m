@@ -17,8 +17,8 @@ params.g =  10; % Non-dimensionalize gravity to change time scale
 
 % radius of gyration is 0.542 from distal end for upper arm and 0.827 from
 % distal end for forearm+hand
-params.I1 = 0;%params.m1*(0.542^2 - params.r1^2); 
-params.I2 = 0;%params.m2*(0.827^2 - params.r2^2);
+params.I1 = params.m1*(0.542^2 - params.r1^2); 
+params.I2 = params.m2*(0.827^2 - params.r2^2);
 
 params.time = 1/numel; % Time taken in each segment
 
@@ -45,5 +45,6 @@ options = optimset('display','iter','MaxFunEvals',10000,'MaxIter',600);
 % Optimize
 [presult,optfval] = fmincon(Obj_Function,pinput0,Aineq,Bineq,Aeq,Beq,LB,UB,Cons_Function,options); 
 
-% Solve and animate the link
+%% Solve and animate the link
+close all;
 PostProcess_TwoLinkArm(presult,params);
