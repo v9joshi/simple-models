@@ -10,16 +10,16 @@ function dStateVar = ODE_2DInvertedPendulum(~,statevar,params)
     % Previous foot position
     oldFootX = statevar(5);
     
-    % DAE formulation
+    % Find the force along the leg
+    % f = (m*g*y - m*(vx^2 + vy^2))/L;
+    
+    % DAE formulation - coeffs*[vx; vy; ax; ay; f/m] = RHS
     coeffs = [eye(4), [0; 0; -(x - oldFootX)/L0; -y/L0];
               zeros(1,4), L0];
     
     RHS = [vx; vy; 0; -g; g*y - vx^2 - vy^2];
     
     soln = coeffs\RHS;
-    
-    % Find the force along the leg
-    % f = (m*g*y - m*(vx^2 + vy^2))/L;
     
     % Find the state derivative
     dStateVar = [soln(1:4); 0];    
