@@ -16,20 +16,24 @@ params.g = g; params.L0 = L0; params.m = m; params.stepLength = stepLength;
 
 
 % Initial conditions
-x0 = 0;  vx0 = 1.5;          % Start at mid-stance with some forward velocity
-y0 = sqrt(L0^2 - x0^2);    % Enforce inverted pendulum constraint
-vy0 = 0;                   % No velocity along the leg
+x0 = 0;  vx0 = 1.5;         % Start at mid-stance with some forward velocity
+y0 = sqrt(L0^2 - x0^2);     % Enforce inverted pendulum constraint
+vy0 = 0;                    % No velocity along the leg
 
-vx0 = min(vx0, sqrt(g*L0)); % Froude number considerations
+vx0 = min(vx0, sqrt(g*L0)); % Froude number considerations:
+                            % Mid-stance velocity lower than froude number
+                            % doesn't guarantee that the leg will never
+                            % pull on the ground, however it does provide
+                            % an upper bound.
 
-footX = 0;                 % Initial foot position
+footX = 0;                  % Initial foot position
 
-t0 = 0;                    % Starting time
-tmax = 2*stepLength/vx0;   % This must be larger than step time
-nSteps = 100;                % Simulating these many steps
+t0 = 0;                     % Starting time
+tmax = 2*stepLength/vx0;    % This must be larger than step time
+nSteps = 100;               % Simulating these many steps
 
 
-% Pack these together
+% Pack the states together
 state0   = [x0; y0; vx0; vy0; footX];
 tSpan    = linspace(t0,tmax,1000);
 
@@ -69,6 +73,7 @@ xf = stateStore(:,5);
 
 %% Try plotting something
 figure(1)
+set(gcf,'color','w')
 plot(x, y);
 hold on
 for index = 1:length(timeStore)
@@ -78,22 +83,37 @@ xlim([-1, max(x) + 1]);
 axis equal
 hold off
 
+%%
 figure(2)
+subplot(3,1,1)
+set(gcf,'color','w')
 L = sqrt((x - xf).^2 + y.^2);
 plot(timeStore,L);
+xlabel('Time (s)')
+ylabel('Leg length (m)')
 
-figure(3)
-F = (g*y - vx.^2 - vy.^2)*m/L0;
-plot(timeStore,F);
-
-figure(4)
+subplot(3,1,2)
 Ldot = (x - xf).*vx + y.*vy;
 plot(timeStore,Ldot);
+xlabel('Time (s)')
+ylabel('Leg length rate (m/s^-^1)')
 
-figure(5)
+subplot(3,1,3)
 Ldotdot = F*L0/m - g*y + vx.^2 + vy.^2;
 plot(timeStore,Ldotdot);
+xlabel('Time (s)')
+ylabel('Leg length rate rate (m/s^-^2)')
 
-figure(6)
+figure(3)
+set(gcf,'color','w')
+F = (g*y - vx.^2 - vy.^2)*m/L0;
+plot(timeStore,F);
+xlabel('Time (s)')
+ylabel('Leg Force (N)')
+
+figure(4)
+set(gcf,'color','w')
 E = m*g*y + 0.5*m*(vx.^2 + vy.^2);
 plot(timeStore,E);
+xlabel('Time (s)')
+ylabel('System energy (J)')
