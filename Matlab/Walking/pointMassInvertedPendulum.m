@@ -16,7 +16,7 @@ params.g = g; params.L0 = L0; params.m = m; params.stepLength = stepLength;
 
 
 % Initial conditions
-x0 = 0;  vx0 = 1.5;         % Start at mid-stance with some forward velocity
+x0 = 0;  vx0 = 0.2;         % Start at mid-stance with some forward velocity
 y0 = sqrt(L0^2 - x0^2);     % Enforce inverted pendulum constraint
 vy0 = 0;                    % No velocity along the leg
 

@@ -1,5 +1,5 @@
 % Function to detect the heel-strike event for a 2D point-mass inverted
-% pendulum walker.
+% pendulum walker. This event also checks for falls.
 function [value,isterminal,direction] = HeelStrike_2DInvertedPendulum(~,statevar,params)
     % Unpack the parameters
     g = params.g; L0 = params.L0; m = params.m; stepLength = params.stepLength;    
@@ -17,7 +17,7 @@ function [value,isterminal,direction] = HeelStrike_2DInvertedPendulum(~,statevar
     d = sqrt((x - newFootX)^2 + y^2);
     
     % Evaluate the heel-strike condition
-    value = d - L0;  % what goes to zero when the event happens
-    isterminal = 1; % whether the simulation should be stopped or not
-    direction = -1; % we want to stop only when d - L0 is decreasing
+    value = [d - L0; y];   % what goes to zero when the event happens
+    isterminal = [1; 1];   % whether the simulation should be stopped or not
+    direction  = [-1; -1]; % we want to stop only when d - L0 is decreasing
 end
