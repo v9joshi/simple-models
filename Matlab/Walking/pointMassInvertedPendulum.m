@@ -16,11 +16,11 @@ params.g = g; params.L0 = L0; params.m = m; params.stepLength = stepLength;
 
 
 % Initial conditions
-x0 = 0;  vx0 = 1.5;         % Start at mid-stance with some forward velocity
+x0 = 0;  vx0 = 4;         % Start at mid-stance with some forward velocity
 y0 = sqrt(L0^2 - x0^2);     % Enforce inverted pendulum constraint
 vy0 = 0;                    % No velocity along the leg
 
-vx0 = min(vx0, sqrt(g*L0) - 0.1); % Froude number considerations
+vx0 = min(vx0, sqrt(g*L0)); % Froude number considerations
 
 footX = 0;                  % Initial foot position
 
@@ -31,7 +31,7 @@ nSteps = 50;                % Simulating these many steps
 
 % Pack these together
 state0   = [x0; y0; vx0; vy0; footX];
-tSpan    = linspace(t0,tmax,1000);
+tSpan    = linspace(t0,tmax,100);
 
 %% Setup ode and contact functions
 ODE_walk        = @(t,statevar) ODE_2DInvertedPendulum(t,statevar,params);
@@ -54,13 +54,28 @@ for currStep = 1:nSteps
     state0 = contactFunction(t0, stateListOut(end,:));    
 end
 
+%% Unpack the state variables
+x  = stateStore(:,1);
+y  = stateStore(:,2);
+vx = stateStore(:,3);
+vy = stateStore(:,4);
+fx = stateStore(:,5);
 
 %% Try plotting something
 figure(1)
-plot(stateStore(:,1), stateStore(:,2));
+plot(x, y);
 hold on
 for index = 1:length(timeStore)
-    line([stateStore(index,1), stateStore(index,5)], [stateStore(index,2), 0]);
+    line([x(index), fx(index)], [y(index), 0]);
 end
-xlim([-1, max(stateStore(:,1)) + 1]);
+xlim([-1, max(x) + 1]);
 axis equal
+hold off
+
+figure(2)
+L = sqrt((x - fx).^2 + y.^2);
+plot(timeStore,L);
+
+figure(3)
+F = (g*y - vx.^2 - vy.^2)*m;
+plot(timeStore,F);

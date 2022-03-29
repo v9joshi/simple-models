@@ -11,10 +11,10 @@ function dStateVar = ODE_2DInvertedPendulum(~,statevar,params)
     oldFootX = statevar(5);
     
     % DAE formulation
-    coeffs = [eye(4), [0; 0; (x - oldFootX)/L0; y/L0];
+    coeffs = [eye(4), [0; 0; -(x - oldFootX)/L0; -y/L0];
               zeros(1,4), 1/m];
     
-    RHS = [vx; vy; 0; 0; g*y - vx^2 - vy^2];
+    RHS = [vx; vy; 0; -g; g*y - vx^2 - vy^2];
     
     soln = coeffs\RHS;
     
