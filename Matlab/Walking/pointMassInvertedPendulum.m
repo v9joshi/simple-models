@@ -9,29 +9,29 @@ g = 10;           % acceleration due to gravity
 L0 = 1;           % Length of the leg
 m  = 1;           % Mass of the human, concentrated at a single point
 
-stepLength = 0.5; % The target step length
+stepLength = 0.1; % The target step length
 
 % Pack parameters
 params.g = g; params.L0 = L0; params.m = m; params.stepLength = stepLength;
 
 
 % Initial conditions
-x0 = 0;  vx0 = 0.2;         % Start at mid-stance with some forward velocity
-y0 = sqrt(L0^2 - x0^2);     % Enforce inverted pendulum constraint
-vy0 = 0;                    % No velocity along the leg
+x0 = 0;  vx0 = 5;          % Start at mid-stance with some forward velocity
+y0 = sqrt(L0^2 - x0^2);    % Enforce inverted pendulum constraint
+vy0 = 0;                   % No velocity along the leg
 
 vx0 = min(vx0, sqrt(g*L0)); % Froude number considerations
 
-footX = 0;                  % Initial foot position
+footX = 0;                 % Initial foot position
 
-t0 = 0;                     % Starting time
-tmax = 3;                   % This must be larger than step time
-nSteps = 1000;                % Simulating these many steps
+t0 = 0;                    % Starting time
+tmax = 2*stepLength/vx0;   % This must be larger than step time
+nSteps = 3;                % Simulating these many steps
 
 
 % Pack these together
 state0   = [x0; y0; vx0; vy0; footX];
-tSpan    = linspace(t0,tmax,100);
+tSpan    = linspace(t0,tmax,1000);
 
 %% Setup ode and contact functions
 ODE_walk        = @(t,statevar) ODE_2DInvertedPendulum(t,statevar,params);
@@ -65,23 +65,31 @@ x  = stateStore(:,1);
 y  = stateStore(:,2);
 vx = stateStore(:,3);
 vy = stateStore(:,4);
-fx = stateStore(:,5);
+xf = stateStore(:,5);
 
 %% Try plotting something
 figure(1)
 plot(x, y);
 hold on
 for index = 1:length(timeStore)
-    line([x(index), fx(index)], [y(index), 0]);
+    line([x(index), xf(index)], [y(index), 0]);
 end
 xlim([-1, max(x) + 1]);
 axis equal
 hold off
 
 figure(2)
-L = sqrt((x - fx).^2 + y.^2);
+L = sqrt((x - xf).^2 + y.^2);
 plot(timeStore,L);
 
 figure(3)
-F = (g*y - vx.^2 - vy.^2)*m;
+F = (g*y - vx.^2 - vy.^2)*m/L0;
 plot(timeStore,F);
+
+figure(4)
+Ldot = (x - xf).*vx + y.*vy;
+plot(timeStore,Ldot);
+
+figure(5)
+Ldotdot = F*L0/m - g*y + vx.^2 + vy.^2;
+plot(timeStore,Ldotdot);
