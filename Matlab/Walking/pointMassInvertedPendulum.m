@@ -16,7 +16,7 @@ params.g = g; params.L0 = L0; params.m = m; params.stepLength = stepLength;
 
 
 % Initial conditions
-x0 = 0;  vx0 = 5;          % Start at mid-stance with some forward velocity
+x0 = 0;  vx0 = 1.5;          % Start at mid-stance with some forward velocity
 y0 = sqrt(L0^2 - x0^2);    % Enforce inverted pendulum constraint
 vy0 = 0;                   % No velocity along the leg
 
@@ -26,7 +26,7 @@ footX = 0;                 % Initial foot position
 
 t0 = 0;                    % Starting time
 tmax = 2*stepLength/vx0;   % This must be larger than step time
-nSteps = 3;                % Simulating these many steps
+nSteps = 100;                % Simulating these many steps
 
 
 % Pack these together
@@ -93,3 +93,7 @@ plot(timeStore,Ldot);
 figure(5)
 Ldotdot = F*L0/m - g*y + vx.^2 + vy.^2;
 plot(timeStore,Ldotdot);
+
+figure(6)
+E = m*g*y + 0.5*m*(vx.^2 + vy.^2);
+plot(timeStore,E);
