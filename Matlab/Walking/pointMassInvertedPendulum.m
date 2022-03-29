@@ -16,14 +16,17 @@ params.g = g; params.L0 = L0; params.m = m; params.stepLength = stepLength;
 
 
 % Initial conditions
-x0 = 0;  vx0 = 1.5;       % Start at mid-stance with some forward velocity
-y0 = sqrt(L0^2 - x0^2); % Enforce inverted pendulum constraint
-vy0 = 0;                % No velocity along the leg
-footX = 0;              % Initial foot position
+x0 = 0;  vx0 = 1.5;         % Start at mid-stance with some forward velocity
+y0 = sqrt(L0^2 - x0^2);     % Enforce inverted pendulum constraint
+vy0 = 0;                    % No velocity along the leg
 
-t0 = 0;                 % Starting time
-tmax = 3;              % This must be larger than step time
-nSteps = 100;            % Simulating these many steps
+vx0 = min(vx0, sqrt(g*L0) - 0.1); % Froude number considerations
+
+footX = 0;                  % Initial foot position
+
+t0 = 0;                     % Starting time
+tmax = 3;                   % This must be larger than step time
+nSteps = 50;                % Simulating these many steps
 
 
 % Pack these together
@@ -33,8 +36,7 @@ tSpan    = linspace(t0,tmax,1000);
 %% Setup ode and contact functions
 ODE_walk        = @(t,statevar) ODE_2DInvertedPendulum(t,statevar,params);
 Event_walk      = @(t,statevar) HeelStrike_2DInvertedPendulum(t,statevar,params);
-contactFunction = @(t, statevar)   Contact_2DInvertedPendulum(t,statevar,params);
-
+contactFunction = @(t,statevar) Contact_2DInvertedPendulum(t,statevar,params);
 
 %% Simulate the steps
 stateStore = [];
