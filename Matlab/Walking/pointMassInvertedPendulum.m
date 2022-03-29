@@ -16,7 +16,7 @@ params.g = g; params.L0 = L0; params.m = m; params.stepLength = stepLength;
 
 
 % Initial conditions
-x0 = 0;  vx0 = 4;         % Start at mid-stance with some forward velocity
+x0 = 0;  vx0 = 1.5;         % Start at mid-stance with some forward velocity
 y0 = sqrt(L0^2 - x0^2);     % Enforce inverted pendulum constraint
 vy0 = 0;                    % No velocity along the leg
 
@@ -26,7 +26,7 @@ footX = 0;                  % Initial foot position
 
 t0 = 0;                     % Starting time
 tmax = 3;                   % This must be larger than step time
-nSteps = 50;                % Simulating these many steps
+nSteps = 1000;                % Simulating these many steps
 
 
 % Pack these together
@@ -51,7 +51,13 @@ for currStep = 1:nSteps
     
     % Apply heel-strike and push-off impulses
     t0 = t0 + tListOut(end);
-    state0 = contactFunction(t0, stateListOut(end,:));    
+    state0 = contactFunction(t0, stateListOut(end,:));
+    
+    % Check to see if the CoM went underground during this step
+    if min(stateListOut(:,2)) < 0
+        disp("The walker fell")
+        break
+    end
 end
 
 %% Unpack the state variables
