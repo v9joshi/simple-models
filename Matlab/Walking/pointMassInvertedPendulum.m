@@ -133,14 +133,14 @@ mass_point = plot(x(1),y(1),'ro','markerfacecolor','r','markersize',20);
 leg_swing  = plot([xf(1),x(1)],[0,y(1)],'b-','linewidth',2);
 
 % Make some ground
-ground_pre = plot([-stepLength,xf(1)],[0,0],'color',[0,0.5,0],'LineStyle','--','linewidth',3);
+ground_pre = plot([xf(1), stepLength],[0,0],'color',[0,0.5,0],'LineStyle','--','linewidth',3);
 ground_mid = plot([xf(1),xf(1) + stepLength],[0,0],'color',[0,0.8,0],'LineStyle','--','linewidth',3);
 ground_post = plot([xf(1) + stepLength,xf(1) + 2*stepLength],[0,0],'color',[0,0.5,0],'LineStyle','--','linewidth',3);
 
 % Set axis properties
 set(gca,'visible','off')
 hold off
-axis([-1, 1, -1, 2]);
+axis([-2*stepLength, 2*stepLength, -1, 2]);
 axis equal
 
 % Set other useful animation properties
@@ -177,11 +177,11 @@ for i = 2:20:length(timeStore)
     set(leg_swing,'xdata',[2*x(i) - xf(i), x(i)])
     
     % Change the ground line
-    set(ground_pre,'xdata',[currFoot - stepLength,currFoot])
-    set(ground_mid,'xdata',[currFoot,currFoot + stepLength])
-    set(ground_post,'xdata',[currFoot + stepLength,currFoot + 2*stepLength])
+    set(ground_pre,'xdata',[xf(i),xf(i) - stepLength])
+    set(ground_mid,'xdata',[xf(i),xf(i) + stepLength])
+    set(ground_post,'xdata',[xf(i) + stepLength,xf(i) + 2*stepLength])
 
-    axis([avgSpeed*i - 1,avgSpeed*i + 1, -1, 2]);
+    axis([avgSpeed*i - 2*stepLength,avgSpeed*i + 2*stepLength, -1, 2]);
         
     pause(0.01);
 end
