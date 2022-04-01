@@ -10,7 +10,7 @@ g = 10;           % acceleration due to gravity
 L0 = 1;           % Length of the leg
 m  = 1;           % Mass of the human, concentrated at a single point
 
-stepLength = 1.4;        % The target step length
+stepLength = 0.7;        % The target step length
 % Step length can't be larger than sqrt(20)*L0/3 
 stepLength = min(stepLength,sqrt(20)*L0/3); 
 
@@ -18,7 +18,7 @@ stepLength = min(stepLength,sqrt(20)*L0/3);
 params.g = g; params.L0 = L0; params.m = m; params.stepLength = stepLength;
 
 % Initial conditions
-x0 = 0;  vx0 = 4;         % Start at mid-stance with some forward velocity
+x0 = 0;  vx0 = 1.2;         % Start at mid-stance with some forward velocity
 y0 = sqrt(L0^2 - x0^2);   % Enforce inverted pendulum constraint
 vy0 = 0;                  % No velocity along the leg                          
 footX = 0;                % Initial foot position
@@ -45,7 +45,7 @@ tSpan    = linspace(t0,tmax,1000);
 
 %% Setup ode and contact functions
 ODE_walk        = @(t,statevar) ODE_2DInvertedPendulum(t,statevar,params);
-Event_walk      = @(t,statevar) HeelStrike_2DInvertedPendulum(t,statevar,params);
+Event_walk      = @(t,statevar) HSEvent_2DInvertedPendulum(t,statevar,params);
 contactFunction = @(t,statevar) Contact_2DInvertedPendulum(t,statevar,params);
 
 %% Simulate the steps
@@ -121,3 +121,67 @@ E = m*g*y + 0.5*m*(vx.^2 + vy.^2);
 plot(timeStore,E);
 xlabel('Time (s)')
 ylabel('System energy (J)')
+
+%% animate
+figure(5)
+set(gcf, 'color','w'); %,'Position', get(0, 'Screensize'));
+
+% Plot the mass
+hold on
+leg_stance   = plot([xf(1),x(1)],[0,y(1)],'k-','linewidth',2);
+mass_point = plot(x(1),y(1),'ro','markerfacecolor','r','markersize',20);
+leg_swing  = plot([xf(1),x(1)],[0,y(1)],'b-','linewidth',2);
+
+% Make some ground
+ground_pre = plot([-stepLength,xf(1)],[0,0],'color',[0,0.5,0],'LineStyle','--','linewidth',3);
+ground_mid = plot([xf(1),xf(1) + stepLength],[0,0],'color',[0,0.8,0],'LineStyle','--','linewidth',3);
+ground_post = plot([xf(1) + stepLength,xf(1) + 2*stepLength],[0,0],'color',[0,0.5,0],'LineStyle','--','linewidth',3);
+
+% Set axis properties
+set(gca,'visible','off')
+hold off
+axis([-1, 1, -1, 2]);
+axis equal
+
+% Set other useful animation properties
+currFoot = xf(1);
+avgSpeed = max(x)/length(timeStore);
+
+% Run the animation
+for i = 2:20:length(timeStore)
+    if xf(i) ~= currFoot
+       % Swap legs at step
+       swap = leg_stance;
+       leg_stance = leg_swing;
+       leg_swing = swap;
+       
+       % Change ground colors at step
+       ground_pre.Color = ground_mid.Color;
+       ground_mid.Color = ground_post.Color;
+       ground_post.Color = ground_pre.Color;
+       
+       % Update the foot position
+       currFoot = xf(i);
+    end
+        
+    % Change the mass locations
+    set(mass_point,'ydata',y(i));
+    set(mass_point,'xdata',x(i));
+ 
+    % Change the leg end-points
+    set(leg_stance,'ydata',[0, y(i)])
+    set(leg_stance,'xdata',[xf(i), x(i)])
+    
+    % Change the leg end-points
+    set(leg_swing,'ydata',[0, y(i)])
+    set(leg_swing,'xdata',[2*x(i) - xf(i), x(i)])
+    
+    % Change the ground line
+    set(ground_pre,'xdata',[currFoot - stepLength,currFoot])
+    set(ground_mid,'xdata',[currFoot,currFoot + stepLength])
+    set(ground_post,'xdata',[currFoot + stepLength,currFoot + 2*stepLength])
+
+    axis([avgSpeed*i - 1,avgSpeed*i + 1, -1, 2]);
+        
+    pause(0.01);
+end
