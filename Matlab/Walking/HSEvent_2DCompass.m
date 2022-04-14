@@ -15,7 +15,7 @@ function [value, isterminal, direction] = HSEvent_2DCompass(~, statevar, params)
     % If the swing foot is behind the stance foot, the angle will be 
     % -gamma, if the swing foot is in front, it will be +gamma.
     % In all other cases, the foot is not on the ground.
-    expectedXFoot = (y2 - y0)/tan(gamma);
+    expectedXFoot = x0 + (y2 - y0)/tan(gamma);
     
     % In addition, the stance angle and swing angle must be equal and
     % non-zero.
@@ -26,7 +26,7 @@ function [value, isterminal, direction] = HSEvent_2DCompass(~, statevar, params)
     
     % Set the event parameters.
     % When the foot angle reaches +gamma this simulation should terminate.
-    value = (x2 - x0 -  expectedXFoot);         % Is the foot angle gamma? 
-    isterminal = expectedXFoot > (x0 + 0.05);            % Terminate at collision.
+    value = (x2 - expectedXFoot);               % Is the foot angle gamma? 
+    isterminal = expectedXFoot > (x0 + 0.1);    % Terminate at collision.
     direction  = 0;                             % Foot must be swinging back
 end

@@ -25,7 +25,7 @@ function EnergyLoss = EnergyLoss_Compass(inputParams)
 
     % Time settings
     t0 = 0;         % Starting time.
-    tmax = 5;      % This must be larger than step time.
+    tmax = 10;      % This must be larger than step time.
     
     % Pack the states together
     state0   = [x10; x20; y10; y20; vx10; vx20; vy10; vy20; x00; y00];
@@ -39,7 +39,6 @@ function EnergyLoss = EnergyLoss_Compass(inputParams)
     %% Simulate the motion
     stateStore = [];
     timeStore  = [];
-    collTimeStore = [];
     % simulate a movement
     options = odeset('reltol',1e-9,'abstol',1e-9,'Events',Event_walk);
 

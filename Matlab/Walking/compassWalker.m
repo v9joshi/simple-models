@@ -14,8 +14,8 @@ params.g = g; params.L0 = L0; params.m = m; params.M = M; params.gamma = gamma;
 % Initial conditions
 x00 = 0;            y00 = 0;              
 % -0.1596    1.0096    1.9969
-x10 =  0;           vx10 = 1.0096;
-x20 = -0.1596;      vx20 = 1.9969;
+x10 =  0;           vx10 = 2;
+x20 = -0.1516;      vx20 = 4;
 
 % Enforce leg length constraints
 % Stance leg
@@ -29,8 +29,8 @@ vy20 = vy10 - (x20 - x10)*(vx20 - vx10)/(y20 - y10);
 
 % Time settings
 t0 = 0;         % Starting time.
-tmax = 5;      % This must be larger than step time.
-numSteps = 5;   % Take n steps
+tmax = 20;      % This must be larger than step time.
+numSteps = 6;   % Take n steps
 
 % Pack the states together
 state0   = [x10; x20; y10; y20; vx10; vx20; vy10; vy20; x00; y00];
@@ -48,14 +48,14 @@ collTimeStore = [];
 % simulate a movement
 options = odeset('reltol',1e-12,'abstol',1e-12,'Events',Event_walk);
 
-for currStep = 1:numSteps
+while t0 < tmax
     [tListOut,stateListOut, te,ye,ie] = ode15s(ODE_walk,tSpan,state0,options);
 
     stateStore = [stateStore; stateListOut(1:end-1,:)]; % leaving out the last point to avoid repetition
     timeStore = [timeStore; t0 + tListOut(1:end-1)];
 
     % Apply heel-strike and push-off impulses
-    if ~isempty(te) && tListOut(end) < tmax
+    if ~isempty(te)
         display('collision')
         collTimeStore = [collTimeStore, te(end) + t0];
         state0 = contactFunction(t0, stateListOut(end,:));
@@ -103,16 +103,20 @@ set(gcf, 'color','w')
 link1 = plot([xf(1), x1(1)],[yf(1), y1(1)],'b-','marker','o','markerfacecolor','b');
 hold on
 link2 = plot([x2(1), x1(1)],[y2(1), y1(1)],'r-','marker','o','markerfacecolor','r');
-ground = plot([xf(1) - 3*cos(gamma), xf(1) + 9*cos(gamma)],[yf(1) - 3*sin(gamma), yf(1) + 9*sin(gamma)],'color',[0,0.2,0],'LineStyle','-','linewidth',3);
+ground = plot([xf(1) - 3*cos(gamma), xf(1) + 25*cos(gamma)],[yf(1) - 3*sin(gamma), yf(1) + 25*sin(gamma)],'color',[0,0.2,0],'LineStyle','-','linewidth',3);
 hold off
-xlim([-3,9])
-ylim([-3,9])
+xlim([-3,3])
+ylim([-3,3])
 axis equal
 set(gca, 'visible','off')
 
-currFoot = [xf(1), yf(1)];
+% Do we want to write to a gif? If yes, specify file name.
+% gifFileName = "compass.gif";
 
-for i = 1:10:length(timeStore)
+currFoot = [xf(1), yf(1)];
+v = max(x2)/length(x2);
+
+for i = 1:100:length(timeStore)
     
     % Check if foot changed
     if ~all([xf(i), yf(i)] == currFoot)
@@ -124,5 +128,19 @@ for i = 1:10:length(timeStore)
         
     set(link1, 'xdata',[xf(i), x1(i)],'ydata',[yf(i), y1(i)])
     set(link2, 'xdata',[x2(i), x1(i)],'ydata',[y2(i), y1(i)])
-    pause(0.01)
+    xlim([x1(i) - 5,x1(i) + 5])
+    pause(0.1)
+    
+    if exist('gifFileName','var')
+        F = getframe(gcf);
+        im = frame2im(F);
+        [imind, cm] = rgb2ind(im,256);
+
+        % Write the frame to the gif file
+        if i == 1
+            imwrite(imind, cm, gifFileName,'gif','DelayTime',0,'Loopcount',inf);
+        else
+            imwrite(imind, cm, gifFileName,'gif','DelayTime',0,'WriteMode','append');
+        end 
+    end
 end
