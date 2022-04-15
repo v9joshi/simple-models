@@ -27,6 +27,6 @@ function [value, isterminal, direction] = HSEvent_2DCompass(~, statevar, params)
     % Set the event parameters.
     % When the foot angle reaches +gamma this simulation should terminate.
     value = (x2 - expectedXFoot);               % Is the foot angle gamma? 
-    isterminal = expectedXFoot > (x0 + 0.1);    % Terminate at collision.
+    isterminal = expectedXFoot > (x0 + 0.01);    % Terminate at collision.
     direction  = 0;                             % Foot must be swinging back
 end

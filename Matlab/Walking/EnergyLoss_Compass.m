@@ -1,10 +1,10 @@
-function EnergyLoss = EnergyLoss_Compass(inputParams)
+function PeriodicityError = EnergyLoss_Compass(inputParams)
     % Set the parameters
     g = 10;           % acceleration due to gravity
     L0 = 1;           % Length of the leg
     m  = 1;           % Mass of the foot, concentrated at a single point
     M = 70;           % Mass of the HAT, concentrated at a single point
-    gamma = -0.01;    % Slope of the ground, in radians
+    gamma = -0.03;    % Slope of the ground, in radians
 
     % Pack parameters
     params.g = g; params.L0 = L0; params.m = m; params.M = M; params.gamma = gamma;
@@ -56,12 +56,31 @@ function EnergyLoss = EnergyLoss_Compass(inputParams)
     y1  = stateStore(:,3); y2  = stateStore(:,4);
     vx1 = stateStore(:,5); vx2 = stateStore(:,6);
     vy1 = stateStore(:,7); vy2 = stateStore(:,8);
-    xf  = stateStore(:,9); yf  = stateStore(:,10);
+    x0  = stateStore(:,9); y0  = stateStore(:,10);
     
     %% Find the kinetic energy
     kineticEnergy = 0.5*M*(vx1.^2 + vy1.^2) + 0.5*m*(vx2.^2 + vy2.^2);
 
     EnergyLoss =  (1 - (kineticEnergy(end)/kineticEnergy(1))^2);
+    
+    %% Periodicity constraint
+    x_diff(1)  = x0(end) - x0(1) - x0(end);
+    x_diff(2)  = x1(end) - x1(1) - x0(end);
+    x_diff(3)  = x2(end) - x2(1) - x0(end);
+    
+    x_diff(4)  = y0(end) - y0(1) - y0(end);
+    x_diff(5)  = y1(end) - y1(1) - y0(end);
+    x_diff(6)  = y2(end) - y2(1) - y0(end);
+    
+    x_diff(7)  = vx1(end) - vx1(1);
+    x_diff(8)  = vx2(end) - vx2(1);
+    
+    x_diff(9)  = vy1(end) - vy1(1);
+    x_diff(10) = vy2(end) - vy2(1);
+    
+    tot_diff = x_diff;
+    
+    PeriodicityError = tot_diff(:);
 end
     
     

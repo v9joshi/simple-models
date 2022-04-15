@@ -6,17 +6,19 @@ g =  10;           % acceleration due to gravity
 L0 = 1;           % Length of the leg
 m  = 1;           % Mass of the foot, concentrated at a single point
 M = 70;           % Mass of the HAT, concentrated at a single point
-gamma = -0.01;    % Slope of the ground, in radians
+gamma = -0.03;    % Slope of the ground, in radians
 
 % Pack parameters
 params.g = g; params.L0 = L0; params.m = m; params.M = M; params.gamma = gamma;
-    
+
+initX = [-0.1802    0.2986    0.3803];
+
 % Initial conditions
 x00 = 0;            y00 = 0;              
-% -0.1596    1.0096    1.9969
-x10 =  0;           vx10 = 2;
-x20 = -0.1516;      vx20 = 4;
-
+%brachiate -0.1516    2    4
+x10 =  0;           vx10 = initX(2);
+x20 = initX(1);     vx20 = initX(3);
+      
 % Enforce leg length constraints
 % Stance leg
 y10 =  y00 + sqrt(L0^2 - (x10 - x00)^2);             
@@ -88,6 +90,7 @@ hold off
 
 footErrorY = y2 - yf - (x2 - xf).*tan(gamma);
 footErrorX = x2 - xf - (y2 - yf)./tan(gamma);
+
 figure(2)
 set(gcf, 'color','w')
 hold on
@@ -109,14 +112,14 @@ xlim([-3,3])
 ylim([-3,3])
 axis equal
 set(gca, 'visible','off')
-
+animAx = gca;
 % Do we want to write to a gif? If yes, specify file name.
 % gifFileName = "compass.gif";
 
 currFoot = [xf(1), yf(1)];
 v = max(x2)/length(x2);
 
-for i = 1:100:length(timeStore)
+for i = 1:10:length(timeStore)
     
     % Check if foot changed
     if ~all([xf(i), yf(i)] == currFoot)
@@ -128,8 +131,8 @@ for i = 1:100:length(timeStore)
         
     set(link1, 'xdata',[xf(i), x1(i)],'ydata',[yf(i), y1(i)])
     set(link2, 'xdata',[x2(i), x1(i)],'ydata',[y2(i), y1(i)])
-    xlim([x1(i) - 5,x1(i) + 5])
-    pause(0.1)
+    animAx.XLim = [x1(i) - 5,x1(i) + 5];
+    pause(0.01)
     
     if exist('gifFileName','var')
         F = getframe(gcf);
