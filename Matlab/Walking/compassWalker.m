@@ -11,12 +11,11 @@ gamma = -0.03;    % Slope of the ground, in radians
 % Pack parameters
 params.g = g; params.L0 = L0; params.m = m; params.M = M; params.gamma = gamma;
 
-% initX = [-0.2604   -0.3178    0.8528    0.1555];
+%brachiate 0 -0.1516    2    4
 initX = [-0.260417722506022  -0.317844122214875   0.852760447627659   0.155466284509077];
 
 % Initial conditions
 x00 = 0;            y00 = 0;              
-%brachiate 0 -0.1516    2    4
 x10 = initX(1);         vx10 = initX(3);
 x20 = x10 + initX(2);   vx20 = initX(4);
       
@@ -32,7 +31,7 @@ vy20 = vy10 - (x20 - x10)*(vx20 - vx10)/(y20 - y10);
 
 % Time settings
 t0 = 0;         % Starting time.
-tmax = 10.5;      % This must be larger than step time.
+tmax = 30;      % This must be larger than step time.
 
 % Pack the states together
 state0   = [x10; x20; y10; y20; vx10; vx20; vy10; vy20; x00; y00];
@@ -58,11 +57,39 @@ while t0 < tmax
 
     % Apply heel-strike and push-off impulses
     if ~isempty(te)
-        display('collision')
+        disp('collision')
         collTimeStore = [collTimeStore, te(end) + t0];
         state0 = contactFunction(t0, stateListOut(end,:));
     else
         state0 = stateListOut(end,:);
+    end
+    
+    % Accounting for integration errors
+    x_diff(1)  = state0(9)  - x00 - state0(9);
+    x_diff(2)  = state0(1)  - x10 - state0(9);
+    x_diff(3)  = state0(2)  - x20 - state0(9);
+    
+    x_diff(4)  = state0(10) - y00 - state0(10);
+    x_diff(5)  = state0(3)  - y10 - state0(10);
+    x_diff(6)  = state0(4)  - y20 - state0(10);
+    
+    x_diff(7)  = state0(5)  - vx10;     x_diff(8)  = state0(6)  - vx20;
+    x_diff(9)  = state0(7)  - vy10;     x_diff(10) = state0(8)  - vy20;
+    
+    tot_diff = x_diff;
+    
+    % Only apply this trick if it is clear that we're dealing with
+    % integration errors.
+    if sum(tot_diff.^2) < 1e-9
+        state0 = [x10 + state0(9);
+                  x20 + state0(9);
+                  y10 + state0(10);
+                  y20 + state0(10);
+                  vx10;
+                  vx20;
+                  vy10;
+                  vy20;
+                  state0(9); state0(10)];
     end
     
     % Update the start time
@@ -117,10 +144,10 @@ animAx = gca;
 % Do we want to write to a gif? If yes, specify file name.
 % gifFileName = "compass_8Steps.gif";
 
+% What foot are we starting on?
 currFoot = [xf(1), yf(1)];
-v = max(x2)/length(x2);
 
-for i = 1:100:length(timeStore)
+for i = 1:10:length(timeStore)
     
     % Check if foot changed
     if ~all([xf(i), yf(i)] == currFoot)
