@@ -2,7 +2,7 @@ function PeriodicityError = Periodicity_Compass(inputParams)
     % Set the parameters
     g = 10;           % acceleration due to gravity
     L0 = 1;           % Length of the leg
-    m  = 0.01;           % Mass of the foot, concentrated at a single point
+    m  = 1;           % Mass of the foot, concentrated at a single point
     M = 70;           % Mass of the HAT, concentrated at a single point
     gamma = -0.03;    % Slope of the ground, in radians
 
@@ -40,7 +40,7 @@ function PeriodicityError = Periodicity_Compass(inputParams)
     stateStore = [];
     timeStore  = [];
     % simulate a movement
-    options = odeset('reltol',1e-9,'abstol',1e-9,'Events',Event_walk);
+    options = odeset('reltol',1e-12,'abstol',1e-12,'Events',Event_walk);
 
     [tListOut,stateListOut] = ode45(ODE_walk,tSpan,state0,options);
 

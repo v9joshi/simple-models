@@ -11,7 +11,8 @@ gamma = -0.03;    % Slope of the ground, in radians
 % Pack parameters
 params.g = g; params.L0 = L0; params.m = m; params.M = M; params.gamma = gamma;
 
-initX = [-0.2604   -0.3178    0.8528    0.1555];
+% initX = [-0.2604   -0.3178    0.8528    0.1555];
+initX = [-0.260417722506022  -0.317844122214875   0.852760447627659   0.155466284509077];
 
 % Initial conditions
 x00 = 0;            y00 = 0;              
@@ -31,8 +32,7 @@ vy20 = vy10 - (x20 - x10)*(vx20 - vx10)/(y20 - y10);
 
 % Time settings
 t0 = 0;         % Starting time.
-tmax = 20;      % This must be larger than step time.
-numSteps = 6;   % Take n steps
+tmax = 10.5;      % This must be larger than step time.
 
 % Pack the states together
 state0   = [x10; x20; y10; y20; vx10; vx20; vy10; vy20; x00; y00];
@@ -51,7 +51,7 @@ collTimeStore = [];
 options = odeset('reltol',1e-12,'abstol',1e-12,'Events',Event_walk);
 
 while t0 < tmax
-    [tListOut,stateListOut, te,ye,ie] = ode45(ODE_walk,tSpan,state0,options);
+    [tListOut,stateListOut, te,ye,ie] = ode15s(ODE_walk,tSpan,state0,options);
 
     stateStore = [stateStore; stateListOut(1:end-1,:)]; % leaving out the last point to avoid repetition
     timeStore = [timeStore; t0 + tListOut(1:end-1)];
@@ -113,13 +113,14 @@ ylim([-3,3])
 axis equal
 set(gca, 'visible','off')
 animAx = gca;
+
 % Do we want to write to a gif? If yes, specify file name.
-% gifFileName = "compass_5Steps.gif";
+% gifFileName = "compass_8Steps.gif";
 
 currFoot = [xf(1), yf(1)];
 v = max(x2)/length(x2);
 
-for i = 1:10:length(timeStore)
+for i = 1:100:length(timeStore)
     
     % Check if foot changed
     if ~all([xf(i), yf(i)] == currFoot)
