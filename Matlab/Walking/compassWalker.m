@@ -2,22 +2,22 @@
 clearvars; close all;
 
 % Set the parameters
-g =  10;           % acceleration due to gravity
+g =  10;          % acceleration due to gravity
 L0 = 1;           % Length of the leg
-m  = 1;           % Mass of the foot, concentrated at a single point
+m  = 1;       % Mass of the foot, concentrated at a single point
 M = 70;           % Mass of the HAT, concentrated at a single point
 gamma = -0.03;    % Slope of the ground, in radians
 
 % Pack parameters
 params.g = g; params.L0 = L0; params.m = m; params.M = M; params.gamma = gamma;
 
-initX = [-0.1802    0.2986    0.3803];
+initX = [-0.2604   -0.3178    0.8528    0.1555];
 
 % Initial conditions
 x00 = 0;            y00 = 0;              
-%brachiate -0.1516    2    4
-x10 =  0;           vx10 = initX(2);
-x20 = initX(1);     vx20 = initX(3);
+%brachiate 0 -0.1516    2    4
+x10 = initX(1);         vx10 = initX(3);
+x20 = x10 + initX(2);   vx20 = initX(4);
       
 % Enforce leg length constraints
 % Stance leg
@@ -51,7 +51,7 @@ collTimeStore = [];
 options = odeset('reltol',1e-12,'abstol',1e-12,'Events',Event_walk);
 
 while t0 < tmax
-    [tListOut,stateListOut, te,ye,ie] = ode15s(ODE_walk,tSpan,state0,options);
+    [tListOut,stateListOut, te,ye,ie] = ode45(ODE_walk,tSpan,state0,options);
 
     stateStore = [stateStore; stateListOut(1:end-1,:)]; % leaving out the last point to avoid repetition
     timeStore = [timeStore; t0 + tListOut(1:end-1)];
@@ -114,7 +114,7 @@ axis equal
 set(gca, 'visible','off')
 animAx = gca;
 % Do we want to write to a gif? If yes, specify file name.
-% gifFileName = "compass.gif";
+% gifFileName = "compass_5Steps.gif";
 
 currFoot = [xf(1), yf(1)];
 v = max(x2)/length(x2);

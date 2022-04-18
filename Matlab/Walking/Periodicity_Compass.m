@@ -1,8 +1,8 @@
-function PeriodicityError = EnergyLoss_Compass(inputParams)
+function PeriodicityError = Periodicity_Compass(inputParams)
     % Set the parameters
     g = 10;           % acceleration due to gravity
     L0 = 1;           % Length of the leg
-    m  = 1;           % Mass of the foot, concentrated at a single point
+    m  = 0.01;           % Mass of the foot, concentrated at a single point
     M = 70;           % Mass of the HAT, concentrated at a single point
     gamma = -0.03;    % Slope of the ground, in radians
 
@@ -10,9 +10,9 @@ function PeriodicityError = EnergyLoss_Compass(inputParams)
     params.g = g; params.L0 = L0; params.m = m; params.M = M; params.gamma = gamma;
 
     % Initial conditions
-    x00 = 0;             y00  = 0;                  
-    x10 = 0;             vx10 = inputParams(2);
-    x20 = inputParams(1);vx20 = inputParams(3);
+    x00 = 0;                    y00  = 0;                  
+    x10 = inputParams(1);       vx10 = inputParams(3);
+    x20 = x10 + inputParams(2); vx20 = inputParams(4);
     
     % Enforce leg length constraints
     % Stance leg
@@ -42,7 +42,7 @@ function PeriodicityError = EnergyLoss_Compass(inputParams)
     % simulate a movement
     options = odeset('reltol',1e-9,'abstol',1e-9,'Events',Event_walk);
 
-    [tListOut,stateListOut] = ode15s(ODE_walk,tSpan,state0,options);
+    [tListOut,stateListOut] = ode45(ODE_walk,tSpan,state0,options);
 
     stateStore = [stateStore; stateListOut(1:end-1,:)]; % leaving out the last point to avoid repetition
     timeStore = [timeStore; t0 + tListOut(1:end-1)];
