@@ -142,12 +142,12 @@ set(gca, 'visible','off')
 animAx = gca;
 
 % Do we want to write to a gif? If yes, specify file name.
-% gifFileName = "compass_8Steps.gif";
+gifFileName = "compass_InfSteps.gif";
 
 % What foot are we starting on?
 currFoot = [xf(1), yf(1)];
 
-for i = 1:10:length(timeStore)
+for i = 1:100:length(timeStore)
     
     % Check if foot changed
     if ~all([xf(i), yf(i)] == currFoot)
