@@ -15,7 +15,7 @@ params.g = g; params.L0 = L0; params.m = m; params.M = M; params.gamma = gamma;
 initX = [-0.260417722506022  -0.317844122214875   0.852760447627659   0.155466284509077];
 
 % Initial conditions
-x00 = 0;            y00 = 0;              
+x00 = 0;                y00 = 0;              
 x10 = initX(1);         vx10 = initX(3);
 x20 = x10 + initX(2);   vx20 = initX(4);
       
@@ -46,7 +46,8 @@ contactFunction = @(t,statevar) Contact_2DCompass(t,statevar,params);
 stateStore = [];
 timeStore  = [];
 collTimeStore = [];
-% simulate a movement
+
+% simulate movement
 options = odeset('reltol',1e-12,'abstol',1e-12,'Events',Event_walk);
 
 while t0 < tmax
@@ -95,6 +96,7 @@ while t0 < tmax
     % Update the start time
     t0 = t0 + tListOut(end);
 end
+
 %% Unpack the state variables
 x1  = stateStore(:,1); x2  = stateStore(:,2);
 y1  = stateStore(:,3); y2  = stateStore(:,4);
@@ -102,7 +104,7 @@ vx1 = stateStore(:,5); vx2 = stateStore(:,6);
 vy1 = stateStore(:,7); vy2 = stateStore(:,8);
 xf  = stateStore(:,9); yf  = stateStore(:,10);
 
-%% Do some testing
+%% Check total energy and foot position
 kineticEnergy = 0.5*M*(vx1.^2 + vy1.^2) + 0.5*m*(vx2.^2 + vy2.^2);
 totalEnergy   = kineticEnergy + M*g*y1 + m*g*y2 + m*g*yf;
 
@@ -142,7 +144,7 @@ set(gca, 'visible','off')
 animAx = gca;
 
 % Do we want to write to a gif? If yes, specify file name.
-gifFileName = "compass_InfSteps.gif";
+% gifFileName = "compass_InfSteps.gif";
 
 % What foot are we starting on?
 currFoot = [xf(1), yf(1)];
