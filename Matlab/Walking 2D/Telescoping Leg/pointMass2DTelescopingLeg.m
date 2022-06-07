@@ -26,11 +26,12 @@ delT = 0.01;
 state0 = [x0, y0, vx0, vy0, F0, footX, footY];
     
 % Set up segment and step parameters
-nSteps  = 2;
-nStates = 7;
-nInputs = 7;
-nSeg    = 20;
-nVars = nInputs*nSeg + 4;
+nSteps      = 2;
+nStates     = 7;
+nInputs     = 7;
+nMeasures   = 8;
+nSeg        = 20;
+nVars       = nInputs*nSeg + 2;
 
 % Pack these params
 params.nSteps = nSteps;
@@ -38,6 +39,7 @@ params.nStates = nStates;
 params.nSeg = nSeg;
 params.nVars = nVars;
 params.nInputs = nInputs;
+params.nMeasures = nMeasures;
 
 %% Set the initial guess
 input0 = [state0(1:nStates - 2), delF, delT];
@@ -45,7 +47,7 @@ var0 = repmat(input0, nSeg, 1);
 var0 = reshape(var0, [], 1);
 impPO = 1;
 impHS = 1;
-var0 = [var0; footX; footY; impHS; impPO];
+var0 = [var0; footX; footY];
 var0 = repmat(var0, nSteps, 1);
 
 var0(1:nSeg) = linspace(-0.2,0.2,nSeg);
@@ -64,7 +66,6 @@ xfmin   = 0;            xfmax   = 2*nSteps;
 yfmin   = 0;            yfmax   = 1e-6;
 delFmin = -Fmax*1000;   delFmax = Fmax*1000;
 delTmin = 0.001;        delTmax = 0.1;
-impMin  = 0;            impMax  = 1e-6;
 
 LBstate = [xmin,ymin,vxmin,vymin,Fmin,xfmin,yfmin];
 UBstate = [xmax,ymax,vxmax,vymax,Fmax,xfmax,yfmax];
@@ -74,12 +75,12 @@ UBinput = [UBstate(1:nStates-2), delFmax, delTmax];
 
 LBvar = repmat(LBinput, nSeg,1);
 LBvar = reshape(LBvar, [], 1);
-LBvar = [LBvar; LBstate(end-1); LBstate(end); impMin; impMin]; 
+LBvar = [LBvar; LBstate(end-1); LBstate(end)]; 
 LB = repmat(LBvar, nSteps,1);
 
 UBvar = repmat(UBinput, nSeg,1);
 UBvar = reshape(UBvar, [], 1);
-UBvar = [UBvar; UBstate(end-1); UBstate(end); impMax; impMax]; 
+UBvar = [UBvar; UBstate(end-1); UBstate(end)]; 
 UB = repmat(UBvar, nSteps,1);
 
 % Ineq and eq matrices
@@ -117,14 +118,11 @@ for stepNum = 1:nSteps
    currStepVar = stepVars(:, stepNum);
 
    % Read the impulses and foot positions
-   currXf = currStepVar(end-3);
-   currYf = currStepVar(end-2);
-
-   currHS = currStepVar(end-1);
-   currPO = currStepVar(end);
+   currXf = currStepVar(end-1);
+   currYf = currStepVar(end);
 
    % Read the seg vars for each segment
-   segVars = reshape(currStepVar(1:end-4)', nSeg, nInputs);  
+   segVars = reshape(currStepVar(1:end-2)', nSeg, nInputs);  
 
    for segNum = 1:nSeg
       currSegVar =  segVars(segNum,:);
@@ -144,35 +142,35 @@ end
 
 figure(1)
 subplot(5,1,1);
-plot([0,tStore(1:end-1)], inputStateStore(1:end,1),'r');
+plot([0;tStore(1:end-1)], inputStateStore(1:end,1),'r');
 hold on
 plot(tStore,outputStateStore(:,1),'b');
 xlabel('Time (s)')
 ylabel('X position (m)');
 
 subplot(5,1,2);
-plot([0,tStore(1:end-1)], inputStateStore(1:end,2),'r');
+plot([0;tStore(1:end-1)], inputStateStore(1:end,2),'r');
 hold on
 plot(tStore,outputStateStore(:,2),'b');
 xlabel('Time (s)')
 ylabel('Y position (m)');
 
 subplot(5,1,3);
-plot([0,tStore(1:end-1)], inputStateStore(1:end,3),'r');
+plot([0;tStore(1:end-1)], inputStateStore(1:end,3),'r');
 hold on
 plot(tStore,outputStateStore(:,3),'b');
 xlabel('Time (s)')
 ylabel('X velocity (m)');
 
 subplot(5,1,4);
-plot([0,tStore(1:end-1)], inputStateStore(1:end,4),'r');
+plot([0;tStore(1:end-1)], inputStateStore(1:end,4),'r');
 hold on
 plot(tStore,outputStateStore(:,4),'b');
 xlabel('Time (s)')
 ylabel('Y velocity (m)');
 
 subplot(5,1,5);
-plot([0,tStore(1:end-1)], inputStateStore(1:end,5),'r');
+plot([0;tStore(1:end-1)], inputStateStore(1:end,5),'r');
 hold on
 plot(tStore,outputStateStore(:,5),'b');
 xlabel('Time (s)')
@@ -184,3 +182,79 @@ plot(outputStateStore(:,1), outputStateStore(:,2),'ko')
 hold on
 plot(outputStateStore(:,6), outputStateStore(:,7),'ro')
 axis equal
+
+%% Unpack the state variables
+x  = outputStateStore(:,1);
+y  = outputStateStore(:,2);
+vx = outputStateStore(:,3);
+vy = outputStateStore(:,4);
+F  = outputStateStore(:,5);
+xf = outputStateStore(:,6);
+yf = outputStateStore(:,7);
+wl = outputStateStore(:,8);
+
+%% Some more plotting
+figure(3)
+subplot(3,1,1)
+set(gcf,'color','w')
+L = sqrt((x - xf).^2 + y.^2);
+plot(tStore,L);
+xlabel('Time (s)')
+ylabel('Leg length (m)')
+
+subplot(3,1,2)
+Ldot = (x - xf).*vx + y.*vy;
+plot(tStore,Ldot);
+xlabel('Time (s)')
+ylabel('Leg length rate (m/s^-^1)')
+
+subplot(3,1,3)
+Ldotdot = F*L0/m - g*y + vx.^2 + vy.^2;
+plot(tStore,Ldotdot);
+xlabel('Time (s)')
+ylabel('Leg length rate rate (m/s^-^2)')
+
+figure(4)
+set(gcf,'color','w')
+E = m*g*y + 0.5*m*(vx.^2 + vy.^2);
+plot(tStore,E);
+xlabel('Time (s)')
+ylabel('System energy (J)')
+
+%% animate
+figure(5)
+set(gcf, 'color','w'); %,'Position', get(0, 'Screensize'));
+
+% Plot the mass
+hold on
+leg_stance   = plot([xf(1),x(1)],[yf(1),y(1)],'k-','linewidth',2);
+mass_point = plot(x(1),y(1),'ro','markerfacecolor','r','markersize',20);
+ground_pre  = plot([-1,0.5*(xf(1)+xf(end))],[yf(1),yf(end)],'color',[0,0.8,0],'LineStyle','-','linewidth',3);
+ground_post = plot([0.5*(xf(1)+xf(end)),2],[yf(1),yf(end)],'color',[0,0.8,0],'LineStyle','--','linewidth',3);
+
+% Set axis properties
+set(gca,'visible','off')
+hold off
+xlim([-1,2])
+axis equal
+
+% Set other useful animation properties
+currFoot = xf(1);
+avgSpeed = max(x)/length(tStore);
+
+% Run the animation
+for i = 1:1:length(tStore)
+    if xf(i) ~= currFoot
+        set(leg_stance,'color','b')
+    end
+    
+    % Change the mass locations
+    set(mass_point,'ydata',y(i));
+    set(mass_point,'xdata',x(i));
+ 
+    % Change the leg end-points
+    set(leg_stance,'ydata',[yf(i), y(i)])
+    set(leg_stance,'xdata',[xf(i), x(i)])
+                
+    pause(0.1);
+end

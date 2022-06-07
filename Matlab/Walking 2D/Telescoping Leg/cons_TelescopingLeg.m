@@ -15,7 +15,7 @@ function [ineqCons, eqCons] = cons_TelescopingLeg(input, params)
     [tStore, outputStateStore] = nSteps_TelescopingLeg(input, params);
     
     % Remove the work done variable
-    outputStateStore = outputStateStore(:,1:7);
+    outputStateStore = outputStateStore(:,1:nStates);
     
     % Make an empty storage matrix
     inputStateStore = [];
@@ -28,14 +28,11 @@ function [ineqCons, eqCons] = cons_TelescopingLeg(input, params)
        currStepVar = stepVars(:, stepNum);
        
        % Read the impulses and foot positions
-       currXf = currStepVar(end-3);
-       currYf = currStepVar(end-2);
+       currXf = currStepVar(end-1);
+       currYf = currStepVar(end);
 
-       currHS = currStepVar(end-1);
-       currPO = currStepVar(end);
-       
        % Read the seg vars for each segment
-       segVars = reshape(currStepVar(1:end-4)', nSeg, nInputs);  
+       segVars = reshape(currStepVar(1:end-2)', nSeg, nInputs);  
        
        for segNum = 1:nSeg
           currSegVar =  segVars(segNum,:);

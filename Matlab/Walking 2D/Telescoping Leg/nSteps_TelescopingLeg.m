@@ -9,8 +9,10 @@ function [tStore, stateStore] = nSteps_TelescopingLeg(input, params)
     % If not, then evaluate it and store the results
     else
         % Unpack some parameters
-        nSteps  = params.nSteps;
-        nVars   = params.nVars;
+        nSteps      = params.nSteps;
+        nVars       = params.nVars;
+        nSeg        = params.nSeg;
+        nMeasures   = params.nMeasures;
 
         % Reshape the input: each step has nVars*nSeg variables 
         %                    + step length and step height
@@ -18,8 +20,8 @@ function [tStore, stateStore] = nSteps_TelescopingLeg(input, params)
         newInput = reshape(input, nVars, nSteps);
 
         % Initialize some storage variables
-        tStore = [];
-        stateStore = [];
+        tStore = zeros(nSteps*nSeg,1);
+        stateStore = zeros(nSteps*nSeg,nMeasures);
 
         % Loop through the steps
         for stepNum = 1:nSteps
@@ -29,15 +31,13 @@ function [tStore, stateStore] = nSteps_TelescopingLeg(input, params)
             % Simulate the step
             [tOut, stateOut] = singleStep_TelescopingLeg(currInput, params);
 
-             % Shift the time forward based on previous steps
-            if ~isempty(tStore)
-                tOut = tOut + tStore(end);
-            end        
-
             % Store the results
-            tStore = [tStore, tOut];
-            stateStore = [stateStore; stateOut];
+            tStore((stepNum-1)*nSeg + 1:(stepNum)*nSeg) = tOut;
+            stateStore((stepNum-1)*nSeg + 1:(stepNum)*nSeg,:) = stateOut;
         end
+
+        % Make the time cumulative
+        tStore = cumsum(tStore);        
         
         % Store the input and result for use in a later function call
         prevInput = input;

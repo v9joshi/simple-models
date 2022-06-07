@@ -1,7 +1,4 @@
 function objVal = obj_TelescopingLeg(input, params)
-
-    persistent prevInput prevOutputState prevOutputTime
-
     % Unpack parameters
     nSteps  = params.nSteps;
     nSeg    = params.nSeg;
@@ -28,17 +25,11 @@ function objVal = obj_TelescopingLeg(input, params)
        currStepVar = stepVars(:, stepNum);
        
        % Read the impulses and foot positions
-       currXf = currStepVar(end-3);
-       currYf = currStepVar(end-2);
-
-       currHS = currStepVar(end-1);
-       currPO = currStepVar(end);
-       
-       % Store the impulses
-       impulseStore = [impulseStore; currHS; currPO];
+       currXf = currStepVar(end-1);
+       currYf = currStepVar(end);
        
        % Read the seg vars for each segment
-       segVars = reshape(currStepVar(1:end-4)', nSeg, nInputs);  
+       segVars = reshape(currStepVar(1:end-2)', nSeg, nInputs);  
        
        for segNum = 1:nSeg
           currSegVar =  segVars(segNum,:);
