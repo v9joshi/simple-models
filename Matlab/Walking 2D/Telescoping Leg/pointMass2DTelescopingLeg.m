@@ -62,10 +62,10 @@ ymin    = 0.5;           ymax   = 1;
 vxmin   = 0;            vxmax   = 3;
 vymin   = -3;           vymax   = 3;
 Fmin    = 0;        
-xfmin   = 0;            xfmax   = 2*nSteps;
-yfmin   = 0;            yfmax   = 1e-6;
+xfmin   = -1;            xfmax   = 2*nSteps;
+yfmin   = -1e-6;         yfmax   = 1e-6;
 delFmin = -Fmax*1000;   delFmax = Fmax*1000;
-delTmin = 0.001;        delTmax = 0.1;
+delTmin = 0.0001;       delTmax = 0.5;
 
 LBstate = [xmin,ymin,vxmin,vymin,Fmin,xfmin,yfmin];
 UBstate = [xmax,ymax,vxmax,vymax,Fmax,xfmax,yfmax];
@@ -96,8 +96,8 @@ objVal = obj_TelescopingLeg(var0, params);
 %% Guess value
 randVal = rand();
 % var0 = randVal*LB + (1-randVal)*UB;
-% sampleVal = load('DecentStartingSol.mat');
-% var0 = sampleVal.xOut;
+sampleVal = load('InvertedPendulumSol.mat');
+var0 = sampleVal.xOut;
 
 %% Set up fmincon
 objFun = @(inputVar) obj_TelescopingLeg(inputVar, params);
@@ -112,6 +112,8 @@ inputStateStore = [];
 
 % Reshape the inputs to read them
 stepVars = reshape(xOut, nVars, nSteps); 
+delF = zeros(nSteps*nSeg,1);
+delT = zeros(nSteps*nSeg,1);
 
 % Loop through the steps
 for stepNum = 1:nSteps
@@ -128,8 +130,8 @@ for stepNum = 1:nSteps
       currSegVar =  segVars(segNum,:);
 
       % Read delF and delT
-      currDelF   =  currSegVar(end-1);
-      currDelT   =  currSegVar(end);
+      delF((stepNum - 1)*segNum + segNum)   =  currSegVar(end-1);
+      delT((stepNum - 1)*segNum + segNum)   =  currSegVar(end);
 
       % Read the states
       currSegState = [currSegVar(1:end-2), currXf, currYf];
@@ -141,6 +143,7 @@ end
 [tStore, outputStateStore] = nSteps_TelescopingLeg(xOut, params);
 
 figure(1)
+set(gcf,'color','w')
 subplot(5,1,1);
 plot([0;tStore(1:end-1)], inputStateStore(1:end,1),'r');
 hold on
