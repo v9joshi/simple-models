@@ -13,6 +13,10 @@ function dStateVar = ODE_3DInvertedPendulum(~,statevar,params)
     oldFootY = statevar(8);
     oldFootZ = statevar(9);
     
+    oldFootXdot = params.speedX;
+    oldFootYdot = params.speedY;
+    oldFootZdot = params.speedZ;
+    
     % Find the force along the leg
     % f = (m*g*y - m*(vx^2 + vy^2 + vz^2))/L;
     
@@ -20,10 +24,10 @@ function dStateVar = ODE_3DInvertedPendulum(~,statevar,params)
     coeffs = [eye(6), [0; 0; 0; -(x - oldFootX)/L0;  -(y - oldFootY)/L0; -(z - oldFootZ)/L0;];
               zeros(1,6), L0];
     
-    RHS = [vx; vy; vz; 0; -g; 0; g*y - vx^2 - vy^2 - vz^2];
+    RHS = [vx; vy; vz; 0; -g; 0; g*y - (vx - oldFootXdot)^2 - (vy - oldFootYdot)^2 - (vz - oldFootZdot)^2];
     
     soln = coeffs\RHS;
     
     % Find the state derivative
-    dStateVar = [soln(1:6); 0; 0; 0];    
+    dStateVar = [soln(1:6); oldFootXdot; oldFootYdot; oldFootZdot];    
 end

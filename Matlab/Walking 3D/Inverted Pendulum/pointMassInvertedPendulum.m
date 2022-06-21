@@ -14,20 +14,23 @@ m  = 1;           % Mass of the human, concentrated at a single point
 stepLength = 0.7;        % The target step length
 stepWidth  = 0;        % The target step width
 
+vxf = -1.3; vyf = 0; vzf = 0;
+
 % Pack parameters
 params.g = g; params.L0 = L0; params.m = m; 
 params.stepLength = stepLength; params.stepWidth = stepWidth;
+params.speedX = vxf; params.speedY = vyf; params.speedZ = vzf;
 
 % Initial conditions
 footX = 0; footY = 0; footZ = stepWidth*0.5;      % Initial foot position
-x0 = 0;      vx0 = 1.2;                           % Start at mid-stance with some forward velocity
+x0 = 0;      vx0 = vxf - vxf;                     % Start at mid-stance with some forward velocity
 z0 = 0;      vz0 = 0;
 
 % Enforce inverted pendulum constraint
 % Leg length must be L0
 y0 = footY + sqrt(L0^2 - (x0 - footX)^2 - (z0 - footZ)^2);       
 % No velocity along the leg                          
-vy0 = (-vx0*(x0 - footX) - vz0*(z0 - footZ))/(y0 - footY);                             
+vy0 = vyf + (-(vx0 - vxf)*(x0 - footX) - (vz0 - vzf)*(z0 - footZ))/(y0 - footY);                             
 
 % Froude number considerations: v < sqrt(g*L0)
 % Mid-stance velocity lower than froude number doesn't guarantee that
@@ -37,13 +40,13 @@ vy0 = (-vx0*(x0 - footX) - vz0*(z0 - footZ))/(y0 - footY);
 % hmin = sqrt(L0^2 - stepLength^2/4);
 % vx0  = min(vx0, sqrt(3*g*hmin - 2*g*L0));
 
-if vx0 == 0
-    disp("can't walk forward due to low speed")
-end
+% if vx0 == 0
+%     disp("can't walk forward due to low speed")
+% end
 
-t0 = 0;                   % Starting time
-tmax = 2*stepLength/vx0;  % This must be larger than step time
-nSteps = 20;             % Simulating these many steps
+t0 = 0;                           % Starting time
+tmax = 2*stepLength/(vx0 - vxf);  % This must be larger than step time
+nSteps = 20;                      % Simulating these many steps
 
 % Pack the states together
 state0   = [x0; y0; z0; vx0; vy0; vz0; footX; footY; footZ];
@@ -100,7 +103,7 @@ hold off
 %%
 figure(2)
 set(gcf,'color','w')
-F = (g*y - vx.^2 - vy.^2 - vz.^2)*m/L0;
+F = (g*y - (vx - vxf).^2 - (vy - vyf).^2 - (vz - vzf).^2)*m/L0;
 plot(timeStore,F);
 xlabel('Time (s)')
 ylabel('Leg Force (N)')
@@ -114,13 +117,13 @@ xlabel('Time (s)')
 ylabel('Leg length (m)')
 
 subplot(3,1,2)
-Ldot = (x - xf).*vx + (y - yf).*vy + (z - zf).*vz;
+Ldot = (x - xf).*(vx - vxf) + (y - yf).*(vy - vyf) + (z - zf).*(vz - vzf);
 plot(timeStore,Ldot);
 xlabel('Time (s)')
 ylabel('Leg length rate (m/s^-^1)')
 
 subplot(3,1,3)
-Ldotdot = F*L0/m - g*y + vx.^2 + vy.^2 + vz.^2;
+Ldotdot = F*L0/m - g*y + (vx - vxf).^2 + (vy - vyf).^2 + (vz - vzf).^2;
 plot(timeStore,Ldotdot);
 xlabel('Time (s)')
 ylabel('Leg length rate rate (m/s^-^2)')
@@ -159,13 +162,13 @@ currFoot = xf(1);
 avgSpeed = max(x)/length(timeStore);
 
 % Run the animation
-for i = 2:20:length(timeStore)
-    if xf(i) ~= currFoot
+for i = 2:10:length(timeStore)
+    if xf(i) >= currFoot
        % Swap legs at step
        swap = leg_stance;
        leg_stance = leg_swing;
        leg_swing = swap;
-       
+            
        % Change ground colors at step
        ground_pre.FaceColor = ground_mid.FaceColor;
        ground_mid.FaceColor = ground_post.FaceColor;
@@ -191,9 +194,9 @@ for i = 2:20:length(timeStore)
     set(leg_swing,'ydata',[2*z(i) - zf(i), z(i)])
         
     % Change the ground line
-    set(ground_pre,'xdata',[xf(i),xf(i),xf(i) - stepLength,xf(i) - stepLength])
-    set(ground_mid,'xdata',[xf(i),xf(i),xf(i) + stepLength,xf(i) + stepLength])
-    set(ground_post,'xdata',[xf(i) + stepLength,xf(i) + stepLength,xf(i) + 2*stepLength,xf(i) + 2*stepLength])
+    set(ground_pre, 'xdata',[currFoot,currFoot,currFoot - stepLength,currFoot - stepLength])
+    set(ground_mid, 'xdata',[currFoot,currFoot,currFoot + stepLength,currFoot + stepLength])
+    set(ground_post,'xdata',[currFoot + stepLength,currFoot + stepLength,currFoot + 2*stepLength,currFoot + 2*stepLength])
 
     set(gca,'xlim',[avgSpeed*i - 2*stepLength,avgSpeed*i + 2*stepLength]);
     axis equal
