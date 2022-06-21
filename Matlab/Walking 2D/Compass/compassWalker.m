@@ -1,4 +1,4 @@
-% Compass walker
+% Compass walker - cartesian
 clearvars; close all;
 
 % Set the parameters
@@ -7,14 +7,23 @@ L0 = 1;           % Length of the leg
 m  = 1;       % Mass of the foot, concentrated at a single point
 M = 70;           % Mass of the HAT, concentrated at a single point
 gamma = -0.03;    % Slope of the ground, in radians
+initX = [-0.260417722506022  -0.317844122214875   0.852760447627659   0.155466284509077];
 
 % Pack parameters
 params.g = g; params.L0 = L0; params.m = m; params.M = M; params.gamma = gamma;
 
-%brachiate 0 -0.1516    2    4
-initX = [-0.260417722506022  -0.317844122214875   0.852760447627659   0.155466284509077];
+% Run a solver to find initial conditions that lead to periodic walking
+guessX = initX;
+ub = [0,0,4,4];
+lb = [-0.7,-0.7,0.3, 0];
+solOpt = optimset('TolFun',1e-12,'TolX',1e-12,'MaxFunEvals',2000,'display','iter');
+[solX, solErr] = lsqnonlin(@Periodicity_Compass, guessX, lb, ub, solOpt);
+ 
+if solErr < 1e-6
+    initX = solX;
+end
 
-% Initial conditions
+%% Initial conditions
 x00 = 0;                y00 = 0;              
 x10 = initX(1);         vx10 = initX(3);
 x20 = x10 + initX(2);   vx20 = initX(4);
@@ -28,10 +37,9 @@ vy10 = -(x10 - x00)*vx10/(y10 - y00);
 y20 = y10 - sqrt(L0^2 - (x20 - x10)^2);
 vy20 = vy10 - (x20 - x10)*(vx20 - vx10)/(y20 - y10);
 
-
 % Time settings
 t0 = 0;         % Starting time.
-tmax = 30;      % This must be larger than step time.
+tmax = 10;      % This must be larger than step time.
 
 % Pack the states together
 state0   = [x10; x20; y10; y20; vx10; vx20; vy10; vy20; x00; y00];
@@ -149,7 +157,7 @@ animAx = gca;
 % What foot are we starting on?
 currFoot = [xf(1), yf(1)];
 
-for i = 1:100:length(timeStore)
+for i = 1:10:length(timeStore)
     
     % Check if foot changed
     if ~all([xf(i), yf(i)] == currFoot)
