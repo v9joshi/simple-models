@@ -6,8 +6,8 @@ g = 10;           % acceleration due to gravity
 L0 = 1;           % Length of the leg
 m  = 1;           % Mass of the human, concentrated at a single point
 Fmax = 200*m*g;
-stepLength = 0.3;        % The target step length - Unused
-Speed = 1.0;
+stepLength = 0.5;        % The target step length - Unused
+Speed = 1.2;
 
 % Pack parameters
 params.g = g; params.L0 = L0; params.m = m; params.stepLength = stepLength;
@@ -98,6 +98,7 @@ randVal = rand();
 % var0 = randVal*LB + (1-randVal)*UB;
 sampleVal = load('InvertedPendulumSol.mat');
 var0 = sampleVal.xOut;
+xOut = sampleVal.xOut;
 
 %% Set up fmincon
 objFun = @(inputVar) obj_TelescopingLeg(inputVar, params);
@@ -142,40 +143,53 @@ end
 %% Run the result
 [tStore, outputStateStore] = nSteps_TelescopingLeg(xOut, params);
 
+%% Interpolate the states
+tInput          = [0;tStore(1:end-1)];
+tOutput         = tStore;
+% tInput_inter    = tInput(1):1e-3:tInput(end);
+% tOutput_inter   = tOutput(1):1e-3:tOutput(end);
+% 
+% inputStateStore  = interp1(tInput, inputStateStore, tInput_inter);%,'method','linear');
+% outputStateStore = interp1(tStore, outputStateStore, tOutput_inter);%,'method','linear');
+
+% tInput = tInput_inter;
+% tOutput = tOutput_inter;
+
+%% Plot the states
 figure(1)
 set(gcf,'color','w')
 subplot(5,1,1);
-plot([0;tStore(1:end-1)], inputStateStore(1:end,1),'r');
+plot(tInput, inputStateStore(1:end,1),'r');
 hold on
-plot(tStore,outputStateStore(:,1),'b');
+plot(tOutput,outputStateStore(:,1),'b');
 xlabel('Time (s)')
 ylabel('X position (m)');
 
 subplot(5,1,2);
-plot([0;tStore(1:end-1)], inputStateStore(1:end,2),'r');
+plot(tInput, inputStateStore(1:end,2),'r');
 hold on
-plot(tStore,outputStateStore(:,2),'b');
+plot(tOutput,outputStateStore(:,2),'b');
 xlabel('Time (s)')
 ylabel('Y position (m)');
 
 subplot(5,1,3);
-plot([0;tStore(1:end-1)], inputStateStore(1:end,3),'r');
+plot(tInput, inputStateStore(1:end,3),'r');
 hold on
-plot(tStore,outputStateStore(:,3),'b');
+plot(tOutput,outputStateStore(:,3),'b');
 xlabel('Time (s)')
 ylabel('X velocity (m)');
 
 subplot(5,1,4);
-plot([0;tStore(1:end-1)], inputStateStore(1:end,4),'r');
+plot(tInput, inputStateStore(1:end,4),'r');
 hold on
-plot(tStore,outputStateStore(:,4),'b');
+plot(tOutput,outputStateStore(:,4),'b');
 xlabel('Time (s)')
 ylabel('Y velocity (m)');
 
 subplot(5,1,5);
-plot([0;tStore(1:end-1)], inputStateStore(1:end,5),'r');
+plot(tInput, inputStateStore(1:end,5),'r');
 hold on
-plot(tStore,outputStateStore(:,5),'b');
+plot(tOutput,outputStateStore(:,5),'b');
 xlabel('Time (s)')
 ylabel('Force (N)');
 
@@ -201,26 +215,27 @@ figure(3)
 subplot(3,1,1)
 set(gcf,'color','w')
 L = sqrt((x - xf).^2 + y.^2);
-plot(tStore,L);
+plot(tOutput,L);
 xlabel('Time (s)')
 ylabel('Leg length (m)')
+ylim([0.5,1.1])
 
 subplot(3,1,2)
 Ldot = (x - xf).*vx + y.*vy;
-plot(tStore,Ldot);
+plot(tOutput,Ldot);
 xlabel('Time (s)')
 ylabel('Leg length rate (m/s^-^1)')
 
 subplot(3,1,3)
 Ldotdot = F*L0/m - g*y + vx.^2 + vy.^2;
-plot(tStore,Ldotdot);
+plot(tOutput,Ldotdot);
 xlabel('Time (s)')
 ylabel('Leg length rate rate (m/s^-^2)')
 
 figure(4)
 set(gcf,'color','w')
 E = m*g*y + 0.5*m*(vx.^2 + vy.^2);
-plot(tStore,E);
+plot(tOutput,E);
 xlabel('Time (s)')
 ylabel('System energy (J)')
 
@@ -243,10 +258,10 @@ axis equal
 
 % Set other useful animation properties
 currFoot = xf(1);
-avgSpeed = max(x)/length(tStore);
+avgSpeed = max(x)/length(tOutput);
 
 % Run the animation
-for i = 1:1:length(tStore)
+for i = 1:2:length(tOutput)
     if xf(i) ~= currFoot
         set(leg_stance,'color','b')
     end
