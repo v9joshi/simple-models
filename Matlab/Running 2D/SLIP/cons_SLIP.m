@@ -1,8 +1,7 @@
 function [cineq, ceq] = cons_SLIP(inputs, params)
     % Unpack important inputs
-    params.tTotal = inputs(7);
-    params.dutyFactor = inputs(8);
-    params.k = inputs(9);
+    params.dutyFactor = inputs(7);
+    params.k = inputs(8);
     params.tStart = 0;
     
     % Use the rest of the inputs as the input state
@@ -27,7 +26,10 @@ function [cineq, ceq] = cons_SLIP(inputs, params)
     % 1. Leg length in contact must be less than max leg length
     legLengthConstraint = contactLegLength - params.L0;
     
-    % 2. Total distance travelled must equal distance constraint
+    % 2. Leg length at end of contact phase must be max leg length
+    legLengthLaunch = contactLegLength(end) - params.L0;
+    
+    % 3. Total distance travelled must equal distance constraint
     flightX  = outputStruct.flightStates(:,2);
     flightY  = outputStruct.flightStates(:,3);
     flightVx = outputStruct.flightStates(:,4);
@@ -35,20 +37,23 @@ function [cineq, ceq] = cons_SLIP(inputs, params)
 
     distanceConstraint = (flightX(end) - contactX(1)) - params.stepLength;
     
-    % 3. Mass can never go below the ground
+    % 4. Mass can never go below the ground
     aboveGroundConstraint = -[contactY(:); flightY(:)];
     
-    % 4. Initial foot placement at origin
+    % 5. Initial foot placement at origin
     startAtOrigin = [contactXf(1); contactYf(1)];
     
-    % 5. Periodicity
-    periodicY  = flightY(end) - contactY(1);
+    % 6. Periodicity
+    periodicY  = flightY(end)  - contactY(1);
     periodicVx = flightVx(end) - contactVx(1);
     periodicVy = flightVy(end) - contactVy(1);
-    
+
     periodicState = [periodicY; periodicVx; periodicVy];
+    
+    % 7. Limit max air
+    maxAirCon = max(flightY) - params.maxAir;  
 
     % Assemble the constraints
-    cineq = [legLengthConstraint(:); aboveGroundConstraint];
-    ceq = [distanceConstraint(:); startAtOrigin(:); periodicState(:)];    
+    cineq = [legLengthConstraint(:); aboveGroundConstraint; maxAirCon];
+    ceq = [legLengthLaunch(:); distanceConstraint(:); startAtOrigin(:); periodicState(:)];    
 end
