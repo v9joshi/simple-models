@@ -8,10 +8,10 @@ set(0,'DefaultFigureColor','w');
 g = 1; L0 = 1; m = 1;
 
 % Step length and step time
-stepLength = 3;     tTotal = 3;
+stepLength = 4;     tTotal = 3;
 
 % Maximum CoM height
- maxAir = 1.6*L0;
+ maxAir = 1.2*L0;
  
 % Packing params
 params.g = g; params.L0 = L0; params.m = m;
@@ -47,7 +47,7 @@ objFun = @(inputVar) 1;     % No cost to solve for, just fitting to constraints
 conFun = @(inputVar) cons_SLIP(inputVar, params);
 
 % Run the optimization
-options = optimoptions('fmincon','Display','iter','MaxFunEvals',1e6,'MaxIter',8000);
+options = optimoptions('fmincon','Display','iter','MaxFunEvals',3e6,'MaxIter',8000);
 xOut = fmincon(objFun,var0,Aineq,Bineq,A,B,LB,UB,conFun, options);
 
 %% Post-process: Use the optimization solution to make an animation
@@ -120,6 +120,14 @@ end
 Langle_left  = interp1(tStore_left, Langle_left, tStore);
 Langle_right = interp1(tStore_right, Langle_right, tStore);
 
+% Alternative single leg bounding
+Langle(cflist == 0) = [];
+tStore_temp = tStore;
+tStore_temp(cflist == 0) = [];
+Langle(end+1) = Langle(1);
+tStore_temp(end+1) = tStore(end);
+Langle = interp1(tStore_temp, Langle, tStore);
+
 %% Interpolate everything to get uniform time-steps
 tStoreNew = linspace(tStore(1), tStore(end),1000*nSteps);
 
@@ -133,6 +141,7 @@ Flist  = interp1(tStore, Flist, tStoreNew);
 Llist  = interp1(tStore, Llist, tStoreNew);
 cflist = interp1(tStore, cflist, tStoreNew);
 
+Langle = interp1(tStore, Langle, tStoreNew);
 Langle_left  = interp1(tStore, Langle_left, tStoreNew);
 Langle_right = interp1(tStore, Langle_right, tStoreNew);
 
@@ -142,11 +151,17 @@ PElist_spring   = 0.5*params.k*(Llist - params.L0).^2;
 PElist_gravity  = params.m*params.g*ylist;
 
 % Find the left and right foot positions
-xflist_left = xlist - params.L0*cos(Langle_left);
-yflist_left = ylist - params.L0*sin(Langle_left);
+xflist_left = xlist - Llist.*cos(Langle_left);
+yflist_left = ylist - Llist.*sin(Langle_left);
+yflist_left = max(0, yflist_left);
 
 xflist_right = xlist - params.L0*cos(Langle_right);
 yflist_right = ylist - params.L0*sin(Langle_right);
+yflist_right = max(0, yflist_right);
+
+% Single leg bounding
+xflist_flight = xlist - params.L0*cos(Langle);
+yflist_flight = ylist - params.L0*sin(Langle);
 
 %% Plot important data
 % Plot states
@@ -195,14 +210,25 @@ legend('KE','PE spring','PE gravity')
 
 %% Animate the hopper
 figure(1)
+bounding = 1;
+
 mass_handle = plot(xlist(1),ylist(1),'ro','markerfacecolor','r');
 hold on
-leg_handle_left = plot([xflist_left(1),xlist(1)],[yflist_left(1), ylist(1)],'k-');
-leg_handle_right = plot([xflist_right(1),xlist(1)],[yflist_right(1), ylist(1)],'k-');
+leg_handle = plot([xflist(1), xlist(1)],[yflist(1),ylist(1)],'k-');
 
-plot([-stepLength nSteps*stepLength],[0,0],'color',[0,0.5,0],'LineStyle','-','linewidth',3)
+leg_handle_left = plot([xflist_left(1),xlist(1)],[yflist_left(1), ylist(1)],'k-');
+leg_handle_right = plot([xflist_right(1),xlist(1)],[yflist_right(1), ylist(1)],'b-');
+
+if bounding
+    set(leg_handle_left, 'visible','off');
+    set(leg_handle_right, 'visible','off');
+else
+    set(leg_handle, 'visible','off');
+end
+
+plot([-stepLength nSteps*stepLength],[0,0],'color',[0,0.5,0],'LineStyle','-','linewidth',1)
 xlim([-stepLength nSteps*stepLength])
-ylim([-0.01, 2])
+ylim([-1, 2])
 axis equal
 set(gca,'visible','off','YLimMode','manual')
 hold off
@@ -212,18 +238,14 @@ for i = 2:20:length(tStoreNew)
     
     % Update the coordinates
     set(mass_handle,'xdata',xlist(i),'ydata',ylist(i));
-    set(leg_handle_left,'xdata',[xflist_left(i),xlist(i)],'ydata',[yflist_left(i), ylist(i)],'color','k','linewidth',1)
-    set(leg_handle_right,'xdata',[xflist_right(i),xlist(i)],'ydata',[yflist_right(i), ylist(i)],'color','k','linewidth',1)
-    
-    % Change leg width when in contact
-    if cflist(i) == -1
-        set(leg_handle_right, 'linewidth', (params.L0/Llist(i))^3, 'color','r');
-    elseif cflist(i) == 1
-        set(leg_handle_left, 'linewidth', (params.L0/Llist(i))^3,'color','r');
+    if Flist(i) > max(Flist)/100
+        set(leg_handle,'xdata',[xflist(i), xlist(i)],'ydata',[yflist(i), ylist(i)],'color','k')
     else
-        set(leg_handle_left, 'linewidth', 1);
-        set(leg_handle_right, 'linewidth', 1);
+        set(leg_handle,'xdata',[xflist_flight(i), xlist(i)],'ydata',[yflist_flight(i), ylist(i)],'color','k')
     end
+    
+    set(leg_handle_left,'xdata',[xflist_left(i),xlist(i)],'ydata',[yflist_left(i), ylist(i)],'color','k','linewidth',1)
+    set(leg_handle_right,'xdata',[xflist_right(i),xlist(i)],'ydata',[yflist_right(i), ylist(i)],'color','b','linewidth',1)
 
     pause(0.01);
 end
