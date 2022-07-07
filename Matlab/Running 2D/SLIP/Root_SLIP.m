@@ -103,14 +103,17 @@ tStore_right = tStore(cflist == -1);
 
 % Add additional points to the start and/or end of the Langle vectors
 if ~mod(nSteps,2)  % Even steps - start with right end with left
-    Langle_left = [min(Langle_left); Langle_left; min(Langle_left)];
-    tStore_left = [tStore(1); tStore_left; tStore_left(end) + params.tTotal];
+    Langle_left = [min(Langle_left); Langle_left; max(Langle_left)];
+    tStore_left = [tStore(1); tStore_left; tStore_left(end) + params.tTotal*(1 + params.dutyFactor)];
     
     Langle_right = [Langle_right; max(Langle_right)];
     tStore_right = [tStore_right; tStore(end)];
 else              % Odd steps - start with right end with right
     Langle_left = [min(Langle_left); Langle_left; max(Langle_left)];
     tStore_left = [tStore(1); tStore_left; tStore(end)];
+    
+    Langle_right = [Langle_right; max(Langle_right)];
+    tStore_right = [tStore_right; tStore_right(end) + params.tTotal*(1 + params.dutyFactor)];
 end
 
 % Interpolate the leg angle during flight
