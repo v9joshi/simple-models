@@ -210,7 +210,7 @@ legend('KE','PE spring','PE gravity')
 
 %% Animate the hopper
 figure(1)
-bounding = 1;
+bounding = true;
 
 mass_handle = plot(xlist(1),ylist(1),'ro','markerfacecolor','r');
 hold on
@@ -235,7 +235,6 @@ hold off
 
 % Loop throught he time-points
 for i = 2:20:length(tStoreNew)
-    
     % Update the coordinates
     set(mass_handle,'xdata',xlist(i),'ydata',ylist(i));
     if Flist(i) > max(Flist)/100
