@@ -68,8 +68,8 @@ nSteps = 4;
 for stepNum = 1:nSteps
     outputStruct = simulateAHop(inputs, params);
 
-    outputStruct.contactStates(:,end+1) = 0;
-    outputStruct.flightStates(:,end+1)  = 1;
+    outputStruct.contactStates(:,end+1) = (-1)^stepNum;
+    outputStruct.flightStates(:,end+1)  = 0;
     
     stateStore = [stateStore; outputStruct.contactStates(1:end-1,2:end); outputStruct.flightStates(1:end-1,2:end)];
     tStore = [tStore; outputStruct.contactStates(1:end-1,1); outputStruct.flightStates(1:end-1,1)];
@@ -91,16 +91,31 @@ Langle = atan2(ylist - yflist, xlist - xflist);
 Flist  = params.k*(params.L0 - Llist);
 
 % Correct these values for contact
-Flist(cflist == 1) = 0;
-Llist(cflist == 1) = params.L0;
+Flist(cflist == 0) = 0;
+Llist(cflist == 0) = params.L0;
 
-% Make the leg angle interpolate during flight
-Langle(cflist == 1) = [];
-Langle(end + 1) = Langle(1);
-tempTime = tStore;
-tempTime(cflist == 1) = [];
-tempTime(end+1) = tStore(end);
-Langle = interp1(tempTime, Langle, tStore);
+% Find the right and left leg angles
+Langle_left = Langle(cflist == 1);
+tStore_left = tStore(cflist == 1);
+
+Langle_right = Langle(cflist == -1);
+tStore_right = tStore(cflist == -1);
+
+% Add additional points to the start and/or end of the Langle vectors
+if ~mod(nSteps,2)  % Even steps - start with right end with left
+    Langle_left = [min(Langle_left); Langle_left; min(Langle_left)];
+    tStore_left = [tStore(1); tStore_left; tStore_left(end) + params.tTotal];
+    
+    Langle_right = [Langle_right; max(Langle_right)];
+    tStore_right = [tStore_right; tStore(end)];
+else              % Odd steps - start with right end with right
+    Langle_left = [min(Langle_left); Langle_left; max(Langle_left)];
+    tStore_left = [tStore(1); tStore_left; tStore(end)];
+end
+
+% Interpolate the leg angle during flight
+Langle_left  = interp1(tStore_left, Langle_left, tStore);
+Langle_right = interp1(tStore_right, Langle_right, tStore);
 
 %% Interpolate everything to get uniform time-steps
 tStoreNew = linspace(tStore(1), tStore(end),1000*nSteps);
@@ -113,16 +128,22 @@ xflist = interp1(tStore, xflist, tStoreNew);
 yflist = interp1(tStore, yflist, tStoreNew);
 Flist  = interp1(tStore, Flist, tStoreNew);
 Llist  = interp1(tStore, Llist, tStoreNew);
-Langle = interp1(tStore, Langle, tStoreNew);
+cflist = interp1(tStore, cflist, tStoreNew);
+
+Langle_left  = interp1(tStore, Langle_left, tStoreNew);
+Langle_right = interp1(tStore, Langle_right, tStoreNew);
 
 % Calculate energy
 KElist          = 0.5*params.m*(vxlist.^2 + vylist.^2);
 PElist_spring   = 0.5*params.k*(Llist - params.L0).^2;
 PElist_gravity  = params.m*params.g*ylist;
 
-% Correct the foot position during flight
-xflist_flight = xlist - params.L0*cos(Langle);
-yflist_flight = ylist - params.L0*sin(Langle);
+% Find the left and right foot positions
+xflist_left = xlist - params.L0*cos(Langle_left);
+yflist_left = ylist - params.L0*sin(Langle_left);
+
+xflist_right = xlist - params.L0*cos(Langle_right);
+yflist_right = ylist - params.L0*sin(Langle_right);
 
 %% Plot important data
 % Plot states
@@ -173,7 +194,9 @@ legend('KE','PE spring','PE gravity')
 figure(1)
 mass_handle = plot(xlist(1),ylist(1),'ro','markerfacecolor','r');
 hold on
-leg_handle = plot([xflist(1),xlist(1)],[yflist(1), ylist(1)],'k-');
+leg_handle_left = plot([xflist_left(1),xlist(1)],[yflist_left(1), ylist(1)],'k-');
+leg_handle_right = plot([xflist_right(1),xlist(1)],[yflist_right(1), ylist(1)],'k-');
+
 plot([-stepLength nSteps*stepLength],[0,0],'color',[0,0.5,0],'LineStyle','-','linewidth',3)
 xlim([-stepLength nSteps*stepLength])
 ylim([-0.01, 2])
@@ -183,11 +206,21 @@ hold off
 
 % Loop throught he time-points
 for i = 2:20:length(tStoreNew)
+    
+    % Update the coordinates
     set(mass_handle,'xdata',xlist(i),'ydata',ylist(i));
-    if Flist(i) > max(Flist/100)
-        set(leg_handle,'xdata',[xflist(i),xlist(i)],'ydata',[yflist(i), ylist(i)],'color','b','linewidth',(params.L0/Llist(i))^3)
+    set(leg_handle_left,'xdata',[xflist_left(i),xlist(i)],'ydata',[yflist_left(i), ylist(i)],'color','k','linewidth',1)
+    set(leg_handle_right,'xdata',[xflist_right(i),xlist(i)],'ydata',[yflist_right(i), ylist(i)],'color','k','linewidth',1)
+    
+    % Change leg width when in contact
+    if cflist(i) == -1
+        set(leg_handle_right, 'linewidth', (params.L0/Llist(i))^3, 'color','r');
+    elseif cflist(i) == 1
+        set(leg_handle_left, 'linewidth', (params.L0/Llist(i))^3,'color','r');
     else
-        set(leg_handle,'xdata',[xflist_flight(i),xlist(i)],'ydata',[yflist_flight(i), ylist(i)],'color','k','linewidth',1)
+        set(leg_handle_left, 'linewidth', 1);
+        set(leg_handle_right, 'linewidth', 1);
     end
+
     pause(0.01);
 end
