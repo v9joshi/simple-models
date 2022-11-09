@@ -1,7 +1,7 @@
 % Function to calculate the metabolic power of a given opensim model with
 % dgf muscles given the states and controls at an instance of time.
 % Using the Bhargava muscle metabolics model.
-function metabolicPower = bgv04_SingleMuscle(muscleParameters, muscleStates)
+function metabolicPower = bgv22_SingleMuscle(muscleParameters, muscleStates)
     % Muscle properties
     decay        = 1.0;
     lceopt       = muscleParameters.LceOpt;
@@ -9,8 +9,8 @@ function metabolicPower = bgv04_SingleMuscle(muscleParameters, muscleStates)
     muscleMass   = muscleParameters.Mass; 
     
     % Metabolic properties
-    Afast  = muscleParameters.Afast;     Aslow  = muscleParameters.Aslow; 
-    Mfast  = muscleParameters.Mfast;     Mslow  = muscleParameters.Mslow; 
+    Afast  = 0.4*muscleParameters.Afast;     Aslow  = 0.4*muscleParameters.Aslow; 
+    Mfast  = 0.6*muscleParameters.Mfast;     Mslow  = 0.6*muscleParameters.Mslow; 
     
     % Muscle states
     lce = muscleStates.l_ce;
