@@ -4,3 +4,6 @@
 # Matlab figure files
 *.fig
 
+# OSim log files
+opensim.log
+
