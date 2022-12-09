@@ -211,7 +211,7 @@ hold on
 plot(timeVals, bodyMetabolicPower_umb10(:,2)/modelMass,'linewidth',1.5)
 plot(timeVals, bodyMetabolicPower_umb10(:,3)/modelMass,'linewidth',1.5)
 plot(timeVals, bodyMetabolicPower_umb10(:,4)/modelMass,'linewidth',1.5)
-legend({'Total power - umb10','Mechanical power - umb10','Activation +Maintenance` power - umb10','Shortening power - umb10'},'location','northeast')
+legend({'Total power - umb10','Mechanical power - umb10','Act+Maint power - umb10','Shortening power - umb10'},'location','northeast')
 set(gca,'TickDir','out','box','off','linewidth',2)
 legend boxoff
 ylim([0,14])
@@ -223,7 +223,7 @@ hold on
 plot(timeVals, bodyMetabolicPower_umb22(:,2)/modelMass,'linewidth',1.5)
 plot(timeVals, bodyMetabolicPower_umb22(:,3)/modelMass,'linewidth',1.5)
 plot(timeVals, bodyMetabolicPower_umb22(:,4)/modelMass,'linewidth',1.5)
-legend({'Total power - umb22','Mechanical power - umb22','Activation +Maintenance` power - umb22','Shortening power - umb22'},'location','northeast')
+legend({'Total power - umb22','Mechanical power - umb22','Act+Maint power - umb22','Shortening power - umb22'},'location','northeast')
 set(gca,'TickDir','out','box','off','linewidth',2)
 legend boxoff
 ylim([0,14])
