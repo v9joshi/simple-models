@@ -1,13 +1,15 @@
 function objVal = obj_TelescopingLeg(input, params)
     % Unpack parameters
-    nSteps  = params.nSteps;
-    nSeg    = params.nSeg;
-    nVars   = params.nVars;
-    nStates = params.nStates;
-    nInputs = params.nInputs;
-    L0      = params.L0;
-    Fmax    = params.Fmax;
-    Speed   = params.Speed;
+    nSteps      = params.nSteps;
+    nSeg        = params.nSeg;
+    nVars       = params.nVars;
+    nStates     = params.nStates;
+    nInputs     = params.nInputs;
+    L0          = params.L0;
+    Fmax        = params.Fmax;
+    Speed       = params.Speed;
+    stepLength  = params.stepLength;
+    stepTime   = stepLength/Speed;
         
     % Make an empty storage matrix
     inputStateStore = [];
@@ -36,7 +38,7 @@ function objVal = obj_TelescopingLeg(input, params)
           
           % Read delF and delT
           currDelF   =  currSegVar(end-1);
-          currDelT   =  currSegVar(end);
+          currDelT   =  currSegVar(end)*stepTime;
           
           delFStore = [delFStore; currDelF];
           

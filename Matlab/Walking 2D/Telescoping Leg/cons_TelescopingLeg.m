@@ -9,6 +9,7 @@ function [ineqCons, eqCons] = cons_TelescopingLeg(input, params)
     Fmax        = params.Fmax;
     Speed       = params.Speed;
     stepLength  = params.stepLength;
+    stepTime   = stepLength/Speed;
     
     % Find the resulting states
     [tStore, outputStateStore] = nSteps_TelescopingLeg(input, params);
@@ -38,7 +39,7 @@ function [ineqCons, eqCons] = cons_TelescopingLeg(input, params)
           
           % Read delF and delT
           currDelF   =  currSegVar(end-1);
-          currDelT   =  currSegVar(end);
+          currDelT   =  currSegVar(end)*stepTime;
           
           % Read the states
           currSegState = [currSegVar(1:end-2), currXf, currYf];
