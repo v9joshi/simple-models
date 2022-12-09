@@ -9,8 +9,10 @@ function metabolicPower = bgv22_SingleMuscle(muscleParameters, muscleStates)
     muscleMass   = muscleParameters.Mass; 
     
     % Metabolic properties
-    Afast  = 0.4*muscleParameters.Afast;     Aslow  = 0.4*muscleParameters.Aslow; 
-    Mfast  = 0.6*muscleParameters.Mfast;     Mslow  = 0.6*muscleParameters.Mslow; 
+    Afast  = 61;     Aslow  = 10; 
+    Mfast  = 92;     Mslow  = 15; 
+    
+    %  133 40 111 74
     
     % Muscle states
     lce = muscleStates.l_ce;

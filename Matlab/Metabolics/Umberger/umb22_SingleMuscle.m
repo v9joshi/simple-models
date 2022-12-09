@@ -11,7 +11,7 @@ function metabolicPower = umb22_SingleMuscle(muscleParameters, muscleStates)
     vmax_st = muscleParameters.Vmax*(0.05^0.3);
     
     % Metabolic properties
-    aerobicScalingFactor = 1.5; % muscleParameters.aerobicScalingFactor;
+    aerobicScalingFactor = 1.0; % muscleParameters.aerobicScalingFactor;
     activationExponent   = 1;   % muscleParameters.activationExponent;
     
     % Muscle states
