@@ -144,26 +144,29 @@ costBreakdown_bgv04_Osim = costBreakdown_bgv04_Osim(:)/(distanceVal_Pelvis*model
 figure(1)
 set(gcf, 'color','w')
 subplot(1,2,1)
-plot(timeVals, bodyMetabolicPower_bgv04(:,[2:5,7]),'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_bgv04(:,[2:5,7])./modelMass,'linewidth',1.5)
 legend({'Wdot','Adot','Mdot','Sdot','Bdot'},'location','northeast')
 set(gca,'TickDir','out','box','off','linewidth',2)
 legend boxoff
-ylim([0,1000])
+
+ylabel('Power (W/Kg)')
+xlabel('Time (s)')
+ylim([0,14])
 title('Individual components')
 
 subplot(1,2,2)
-plot(timeVals, bodyMetabolicPower_bgv04(:,1),'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_bgv04(:,1)/modelMass,'linewidth',1.5)
 hold on
-plot(timeVals, bodyMetabolicPower_bgv22(:,1),'linewidth',1.5)
-plot(timeVals, bodyMetabolicPower_umb10(:,1),'linewidth',1.5)
-plot(timeVals, bodyMetabolicPower_umb22(:,1),'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_bgv22(:,1)/modelMass,'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_umb10(:,1)/modelMass,'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_umb22(:,1)/modelMass,'linewidth',1.5)
 legend({'Edot - bgv04','Edot - bgv22','Edot - umb10','Edot - umb22'},'location','northeast')
 set(gca,'TickDir','out','box','off','linewidth',2)
 legend boxoff
 
-ylabel('Power (W)')
+ylabel('Power (W/Kg)')
 xlabel('Time (s)')
-ylim([0,1000])
+ylim([0,14])
 title('Total power')
 
 %% Plot individual terms
@@ -171,62 +174,62 @@ figure(2)
 set(gcf,'Color','w')
 tile_handle = tiledlayout(1,2);
 nexttile()
-plot(timeVals, bodyMetabolicPower_bgv04(:,1),'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_bgv04(:,1)/modelMass,'linewidth',1.5)
 hold on
-plot(timeVals, bodyMetabolicPower_bgv04(:,2),'linewidth',1.5)
-plot(timeVals, bodyMetabolicPower_bgv04(:,3),'linewidth',1.5)
-plot(timeVals, bodyMetabolicPower_bgv04(:,4),'linewidth',1.5)
-plot(timeVals, bodyMetabolicPower_bgv04(:,5),'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_bgv04(:,2)/modelMass,'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_bgv04(:,3)/modelMass,'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_bgv04(:,4)/modelMass,'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_bgv04(:,5)/modelMass,'linewidth',1.5)
 legend({'Total power - bgv04','Mechanical power - bgv04','Activation power - bgv04','Maintenance power - bgv04','Shortening power - bgv04'},'location','northeast')
 set(gca,'TickDir','out','box','off','linewidth',2)
 legend boxoff
-ylim([0,1500])
+ylim([0,14])
 title('BGV 04')
 
 nexttile
-plot(timeVals, bodyMetabolicPower_bgv22(:,1),'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_bgv22(:,1)/modelMass,'linewidth',1.5)
 hold on
-plot(timeVals, bodyMetabolicPower_bgv22(:,2),'linewidth',1.5)
-plot(timeVals, bodyMetabolicPower_bgv22(:,3),'linewidth',1.5)
-plot(timeVals, bodyMetabolicPower_bgv22(:,4),'linewidth',1.5)
-plot(timeVals, bodyMetabolicPower_bgv22(:,5),'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_bgv22(:,2)/modelMass,'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_bgv22(:,3)/modelMass,'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_bgv22(:,4)/modelMass,'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_bgv22(:,5)/modelMass,'linewidth',1.5)
 legend({'Total power - bgv22','Mechanical power - bgv22','Activation power - bgv22','Maintenance power - bgv22','Shortening power - bgv22'},'location','northeast')
 set(gca,'TickDir','out','box','off','linewidth',2)
 legend boxoff
-ylim([0,1500])
+ylim([0,14])
 title('BGV 22')
 
-ylabel(tile_handle, 'Power (W)')
+ylabel(tile_handle, 'Power (W/Kg)')
 xlabel(tile_handle, 'Time (s)')
 
 figure(3)
 set(gcf,'Color','w')
 tile_handle = tiledlayout(1,2);
 nexttile()
-plot(timeVals, bodyMetabolicPower_umb10(:,1),'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_umb10(:,1)/modelMass,'linewidth',1.5)
 hold on
-plot(timeVals, bodyMetabolicPower_umb10(:,2),'linewidth',1.5)
-plot(timeVals, bodyMetabolicPower_umb10(:,3),'linewidth',1.5)
-plot(timeVals, bodyMetabolicPower_umb10(:,4),'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_umb10(:,2)/modelMass,'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_umb10(:,3)/modelMass,'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_umb10(:,4)/modelMass,'linewidth',1.5)
 legend({'Total power - umb10','Mechanical power - umb10','Activation +Maintenance` power - umb10','Shortening power - umb10'},'location','northeast')
 set(gca,'TickDir','out','box','off','linewidth',2)
 legend boxoff
-ylim([0,1500])
+ylim([0,14])
 title('UMB 10')
 
 nexttile()
-plot(timeVals, bodyMetabolicPower_umb22(:,1),'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_umb22(:,1)/modelMass,'linewidth',1.5)
 hold on
-plot(timeVals, bodyMetabolicPower_umb22(:,2),'linewidth',1.5)
-plot(timeVals, bodyMetabolicPower_umb22(:,3),'linewidth',1.5)
-plot(timeVals, bodyMetabolicPower_umb22(:,4),'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_umb22(:,2)/modelMass,'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_umb22(:,3)/modelMass,'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_umb22(:,4)/modelMass,'linewidth',1.5)
 legend({'Total power - umb22','Mechanical power - umb22','Activation +Maintenance` power - umb22','Shortening power - umb22'},'location','northeast')
 set(gca,'TickDir','out','box','off','linewidth',2)
 legend boxoff
-ylim([0,1500])
+ylim([0,14])
 title('UMB 22')
 
-ylabel(tile_handle, 'Power (W)')
+ylabel(tile_handle, 'Power (W/Kg)')
 xlabel(tile_handle, 'Time (s)')
 
 
