@@ -5,13 +5,13 @@ set(0,'DefaultFigureColor','w');
 
 % Set some parameters
 % Gravity, leg length, body mass
-g = 1; L0 = 1; m = 1;
+g = 1; L0 = 1; m = 70;
 
 % Step length and step time
 stepLength = 4;     tTotal = 3;
 
 % Maximum CoM height
- maxAir = 1.2*L0;
+maxAir = 2*L0;
  
 % Packing params
 params.g = g; params.L0 = L0; params.m = m;
@@ -20,7 +20,7 @@ params.tTotal = tTotal;
 
 %% Set some initial guess
 oldSol = load('guessStores.mat');
-% var0 = [0,1,0,-1,1e-9,1e-9,0.5, 4];
+% var0 = [0,1,0,-1,1e-9,1e-9,0.5, 280];
 var0 = oldSol.xOut;
 
 %% Set up the linear constraints and bounds
@@ -35,7 +35,7 @@ minVy   =  -5;      maxVy   =   5;
 minXf   =   0;      maxXf   = 0.1;
 minYf   =   0;      maxYf   = 0.1;
 minDuty =   0;      maxDuty =   1;
-minK    =   1;      maxK    = 1e6;
+minK    =   1;      maxK    = 7e7;
 
 % Store bounds
 LB = [minX0, minY0, minVx, minVy, minXf, minYf, minDuty, minK];
@@ -104,13 +104,13 @@ tStore_right = tStore(cflist == -1);
 % Add additional points to the start and/or end of the Langle vectors
 if ~mod(nSteps,2)  % Even steps - start with right end with left
     Langle_left = [min(Langle_left); Langle_left; max(Langle_left)];
-    tStore_left = [tStore(1); tStore_left; tStore_left(end) + params.tTotal*(1 + params.dutyFactor)];
+    tStore_left = [tStore(1) - params.tTotal*params.dutyFactor; tStore_left; tStore_left(end) + params.tTotal*(1 + params.dutyFactor)];
     
     Langle_right = [Langle_right; max(Langle_right)];
     tStore_right = [tStore_right; tStore(end)];
 else              % Odd steps - start with right end with right
     Langle_left = [min(Langle_left); Langle_left; max(Langle_left)];
-    tStore_left = [tStore(1); tStore_left; tStore(end)];
+    tStore_left = [tStore(1) - params.tTotal*params.dutyFactor; tStore_left; tStore(end)];
     
     Langle_right = [Langle_right; max(Langle_right)];
     tStore_right = [tStore_right; tStore_right(end) + params.tTotal*(1 + params.dutyFactor)];
@@ -228,7 +228,7 @@ end
 
 plot([-stepLength nSteps*stepLength],[0,0],'color',[0,0.5,0],'LineStyle','-','linewidth',1)
 xlim([-stepLength nSteps*stepLength])
-ylim([-1, 2])
+ylim([-1, 4])
 axis equal
 set(gca,'visible','off','YLimMode','manual')
 hold off
