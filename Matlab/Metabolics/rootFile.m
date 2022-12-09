@@ -68,38 +68,27 @@ for currTimeIndex = 1:length(timeVals)
 end
 
 % Integrate the metabolic power to get work
-costBreakdown_bgv04(1) = trapz(timeVals, bodyMetabolicPower_bgv04(:,1)); % Total work
-costBreakdown_bgv04(2) = trapz(timeVals, bodyMetabolicPower_bgv04(:,2)); % Mechanical work
-costBreakdown_bgv04(3) = trapz(timeVals, bodyMetabolicPower_bgv04(:,3)); % Activation work
-costBreakdown_bgv04(4) = trapz(timeVals, bodyMetabolicPower_bgv04(:,4)); % Maintenance work
-costBreakdown_bgv04(5) = trapz(timeVals, bodyMetabolicPower_bgv04(:,5)); % Shortening work
-costBreakdown_bgv04(6) = trapz(timeVals, bodyMetabolicPower_bgv04(:,6)); % Smoothed total work
-costBreakdown_bgv04(7) = trapz(timeVals, bodyMetabolicPower_bgv04(:,7)); % Basal heat rate
+% Term orders:
+% BGV
+% 1 - Total work. 
+% 2 - Mechanical work.
+% 3 - Activation work.
+% 4 - Maintenance work.
+% 5 - Shortening/lengthening work.
+% 6 - Smoothed total work.
+% 7 - Basal/Resting work
+costBreakdown_bgv04 = trapz(timeVals, bodyMetabolicPower_bgv04); 
+costBreakdown_bgv22 = trapz(timeVals, bodyMetabolicPower_bgv22); 
 
-% Integrate the metabolic power to get work
-costBreakdown_bgv22(1) = trapz(timeVals, bodyMetabolicPower_bgv22(:,1)); % Total work
-costBreakdown_bgv22(2) = trapz(timeVals, bodyMetabolicPower_bgv22(:,2)); % Mechanical work
-costBreakdown_bgv22(3) = trapz(timeVals, bodyMetabolicPower_bgv22(:,3)); % Activation work
-costBreakdown_bgv22(4) = trapz(timeVals, bodyMetabolicPower_bgv22(:,4)); % Maintenance work
-costBreakdown_bgv22(5) = trapz(timeVals, bodyMetabolicPower_bgv22(:,5)); % Shortening work
-costBreakdown_bgv22(6) = trapz(timeVals, bodyMetabolicPower_bgv22(:,6)); % Smoothed total work
-costBreakdown_bgv22(7) = trapz(timeVals, bodyMetabolicPower_bgv22(:,7)); % Basal heat rate
-
-% Integrate the metabolic power to get work
-costBreakdown_umb10(1) = trapz(timeVals, bodyMetabolicPower_umb10(:,1)); % Total work
-costBreakdown_umb10(2) = trapz(timeVals, bodyMetabolicPower_umb10(:,2)); % Mechanical work
-costBreakdown_umb10(3) = trapz(timeVals, bodyMetabolicPower_umb10(:,3)); % Activation work
-costBreakdown_umb10(4) = trapz(timeVals, bodyMetabolicPower_umb10(:,4)); % Shortening work
-costBreakdown_umb10(5) = trapz(timeVals, bodyMetabolicPower_umb10(:,5)); % Smoothed total work
-costBreakdown_umb10(6) = trapz(timeVals, bodyMetabolicPower_umb10(:,6)); % Basal heat rate
-
-% Integrate the metabolic power to get work
-costBreakdown_umb22(1) = trapz(timeVals, bodyMetabolicPower_umb22(:,1)); % Total work
-costBreakdown_umb22(2) = trapz(timeVals, bodyMetabolicPower_umb22(:,2)); % Mechanical work
-costBreakdown_umb22(3) = trapz(timeVals, bodyMetabolicPower_umb22(:,3)); % Activation work
-costBreakdown_umb22(4) = trapz(timeVals, bodyMetabolicPower_umb22(:,4)); % Shortening work
-costBreakdown_umb22(5) = trapz(timeVals, bodyMetabolicPower_umb22(:,5)); % Smoothed total work
-costBreakdown_umb22(6) = trapz(timeVals, bodyMetabolicPower_umb22(:,6)); % Basal heat rate
+% UMB
+% 1 - Total work. 
+% 2 - Mechanical work.
+% 3 - Activation + Maintenance work.
+% 4 - Shortening/lengthening work.
+% 5 - Smoothed total work.
+% 6 - Basal/Resting work.
+costBreakdown_umb10 = trapz(timeVals, bodyMetabolicPower_umb10);
+costBreakdown_umb22 = trapz(timeVals, bodyMetabolicPower_umb22);
 
 % Convert work to cost of transport
 costBreakdown_bgv04 = costBreakdown_bgv04(:)/(distanceTravelled*bodyMass);
@@ -140,13 +129,7 @@ for currTimeIndex = 1:length(timeVals)
 end
 
 % Integrate the metabolic power to get work
-costBreakdown_bgv04_Osim(1) = trapz(timeVals, bodyMetabolicPower_bgv04_Osim(:,1)); % Total work
-costBreakdown_bgv04_Osim(2) = trapz(timeVals, bodyMetabolicPower_bgv04_Osim(:,2)); % Mechanical work
-costBreakdown_bgv04_Osim(3) = trapz(timeVals, bodyMetabolicPower_bgv04_Osim(:,3)); % Activation work
-costBreakdown_bgv04_Osim(4) = trapz(timeVals, bodyMetabolicPower_bgv04_Osim(:,4)); % Maintenance work
-costBreakdown_bgv04_Osim(5) = trapz(timeVals, bodyMetabolicPower_bgv04_Osim(:,5)); % Shortening work
-costBreakdown_bgv04_Osim(6) = trapz(timeVals, bodyMetabolicPower_bgv04_Osim(:,6)); % Smoothed total work
-costBreakdown_bgv04_Osim(7) = trapz(timeVals, bodyMetabolicPower_bgv04_Osim(:,7)); % Basal heat rate
+costBreakdown_bgv04_Osim = trapz(timeVals, bodyMetabolicPower_bgv04_Osim); % Total work
 
 % Find distance travelled
 distanceVal_Pelvis = statesVals(end,2) - statesVals(1,2);
