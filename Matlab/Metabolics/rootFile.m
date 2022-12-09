@@ -89,17 +89,17 @@ costBreakdown_bgv22(7) = trapz(timeVals, bodyMetabolicPower_bgv22(:,7)); % Basal
 costBreakdown_umb10(1) = trapz(timeVals, bodyMetabolicPower_umb10(:,1)); % Total work
 costBreakdown_umb10(2) = trapz(timeVals, bodyMetabolicPower_umb10(:,2)); % Mechanical work
 costBreakdown_umb10(3) = trapz(timeVals, bodyMetabolicPower_umb10(:,3)); % Activation work
-costBreakdown_umb10(4) = trapz(timeVals, bodyMetabolicPower_umb10(:,4)); % Maintenance work
-costBreakdown_umb10(5) = trapz(timeVals, bodyMetabolicPower_umb10(:,5)); % Shortening work
-costBreakdown_umb10(6) = trapz(timeVals, bodyMetabolicPower_umb10(:,6)); % Smoothed total work
+costBreakdown_umb10(4) = trapz(timeVals, bodyMetabolicPower_umb10(:,4)); % Shortening work
+costBreakdown_umb10(5) = trapz(timeVals, bodyMetabolicPower_umb10(:,5)); % Smoothed total work
+costBreakdown_umb10(6) = trapz(timeVals, bodyMetabolicPower_umb10(:,6)); % Basal heat rate
 
 % Integrate the metabolic power to get work
 costBreakdown_umb22(1) = trapz(timeVals, bodyMetabolicPower_umb22(:,1)); % Total work
 costBreakdown_umb22(2) = trapz(timeVals, bodyMetabolicPower_umb22(:,2)); % Mechanical work
 costBreakdown_umb22(3) = trapz(timeVals, bodyMetabolicPower_umb22(:,3)); % Activation work
-costBreakdown_umb22(4) = trapz(timeVals, bodyMetabolicPower_umb22(:,4)); % Maintenance work
-costBreakdown_umb22(5) = trapz(timeVals, bodyMetabolicPower_umb22(:,5)); % Shortening work
-costBreakdown_umb22(6) = trapz(timeVals, bodyMetabolicPower_umb22(:,6)); % Smoothed total work
+costBreakdown_umb22(4) = trapz(timeVals, bodyMetabolicPower_umb22(:,4)); % Shortening work
+costBreakdown_umb22(5) = trapz(timeVals, bodyMetabolicPower_umb22(:,5)); % Smoothed total work
+costBreakdown_umb22(6) = trapz(timeVals, bodyMetabolicPower_umb22(:,6)); % Basal heat rate
 
 % Convert work to cost of transport
 costBreakdown_bgv04 = costBreakdown_bgv04(:)/(distanceTravelled*bodyMass);
@@ -183,25 +183,87 @@ xlabel('Time (s)')
 ylim([0,1000])
 title('Total power')
 
-%%
+%% Plot individual terms
 figure(2)
-set(gcf, 'color','w')
-subplot(1,2,1)
-plot(timeVals, bodyMetabolicPower_bgv04_Osim(:,[2:5,7]),'linewidth',1.5)
-legend({'Wdot','Adot','Mdot','Sdot','Bdot'},'location','northeast')
-set(gca,'TickDir','out','box','off','linewidth',2)
-legend boxoff
-ylim([0,700])
-title('Individual components')
-
-subplot(1,2,2)
-plot(timeVals, bodyMetabolicPower_bgv04_Osim(:,1),'linewidth',1.5)
+set(gcf,'Color','w')
+tile_handle = tiledlayout(1,2);
+nexttile()
+plot(timeVals, bodyMetabolicPower_bgv04(:,1),'linewidth',1.5)
 hold on
-plot(timeVals, bodyMetabolicPower_bgv04_Osim(:,6),'linewidth',1.5)
-legend({'Edot','Edot - smooth'},'location','northeast')
+plot(timeVals, bodyMetabolicPower_bgv04(:,2),'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_bgv04(:,3),'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_bgv04(:,4),'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_bgv04(:,5),'linewidth',1.5)
+legend({'Total power - bgv04','Mechanical power - bgv04','Activation power - bgv04','Maintenance power - bgv04','Shortening power - bgv04'},'location','northeast')
 set(gca,'TickDir','out','box','off','linewidth',2)
 legend boxoff
-ylim([0,700])
-title('Total power')
+ylim([0,1500])
+title('BGV 04')
+
+nexttile
+plot(timeVals, bodyMetabolicPower_bgv22(:,1),'linewidth',1.5)
+hold on
+plot(timeVals, bodyMetabolicPower_bgv22(:,2),'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_bgv22(:,3),'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_bgv22(:,4),'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_bgv22(:,5),'linewidth',1.5)
+legend({'Total power - bgv22','Mechanical power - bgv22','Activation power - bgv22','Maintenance power - bgv22','Shortening power - bgv22'},'location','northeast')
+set(gca,'TickDir','out','box','off','linewidth',2)
+legend boxoff
+ylim([0,1500])
+title('BGV 22')
+
+ylabel(tile_handle, 'Power (W)')
+xlabel(tile_handle, 'Time (s)')
+
+figure(3)
+set(gcf,'Color','w')
+tile_handle = tiledlayout(1,2);
+nexttile()
+plot(timeVals, bodyMetabolicPower_umb10(:,1),'linewidth',1.5)
+hold on
+plot(timeVals, bodyMetabolicPower_umb10(:,2),'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_umb10(:,3),'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_umb10(:,4),'linewidth',1.5)
+legend({'Total power - umb10','Mechanical power - umb10','Activation +Maintenance` power - umb10','Shortening power - umb10'},'location','northeast')
+set(gca,'TickDir','out','box','off','linewidth',2)
+legend boxoff
+ylim([0,1500])
+title('UMB 10')
+
+nexttile()
+plot(timeVals, bodyMetabolicPower_umb22(:,1),'linewidth',1.5)
+hold on
+plot(timeVals, bodyMetabolicPower_umb22(:,2),'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_umb22(:,3),'linewidth',1.5)
+plot(timeVals, bodyMetabolicPower_umb22(:,4),'linewidth',1.5)
+legend({'Total power - umb22','Mechanical power - umb22','Activation +Maintenance` power - umb22','Shortening power - umb22'},'location','northeast')
+set(gca,'TickDir','out','box','off','linewidth',2)
+legend boxoff
+ylim([0,1500])
+title('UMB 22')
+
+ylabel(tile_handle, 'Power (W)')
+xlabel(tile_handle, 'Time (s)')
 
 
+% %%
+% figure(2)
+% set(gcf, 'color','w')
+% subplot(1,2,1)
+% plot(timeVals, bodyMetabolicPower_bgv04_Osim(:,[2:5,7]),'linewidth',1.5)
+% legend({'Wdot','Adot','Mdot','Sdot','Bdot'},'location','northeast')
+% set(gca,'TickDir','out','box','off','linewidth',2)
+% legend boxoff
+% ylim([0,700])
+% title('Individual components')
+% 
+% subplot(1,2,2)
+% plot(timeVals, bodyMetabolicPower_bgv04_Osim(:,1),'linewidth',1.5)
+% hold on
+% plot(timeVals, bodyMetabolicPower_bgv04_Osim(:,6),'linewidth',1.5)
+% legend({'Edot','Edot - smooth'},'location','northeast')
+% set(gca,'TickDir','out','box','off','linewidth',2)
+% legend boxoff
+% ylim([0,700])
+% title('Total power')
