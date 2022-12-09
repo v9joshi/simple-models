@@ -1,5 +1,4 @@
-function [ineqCons, eqCons] = cons_TelescopingLeg(input, params)
-        
+function [ineqCons, eqCons] = cons_TelescopingLeg(input, params)   
     % Unpack parameters
     nSteps      = params.nSteps;
     nSeg        = params.nSeg;
