@@ -1,4 +1,4 @@
-% 2-D inverted pendlum walker
+    % 2-D inverted pendlum walker
 % The walker has a point-mass and point-feet. In each step the mass moves
 % in an inverted pendulum motion over the stance-foot. Push-off and
 % heel-strike happen simultaneously such that the double-support period is
@@ -77,7 +77,7 @@ vx = stateStore(:,3);
 vy = stateStore(:,4);
 xf = stateStore(:,5);
 
-%% Try plotting something
+%% Plot the motion of the system
 figure(1)
 set(gcf,'color','w')
 plot(x, y);
@@ -87,7 +87,7 @@ xlim([-1, max(x) + 1]);
 axis equal
 hold off
 
-%%
+%% Plot timeseries of leg force, leg length etc.
 figure(2)
 set(gcf,'color','w')
 F = (g*y - vx.^2 - vy.^2)*m/L0;
@@ -115,6 +115,8 @@ plot(timeStore,Ldotdot);
 xlabel('Time (s)')
 ylabel('Leg length rate rate (m/s^-^2)')
 
+%% Plot the system energy.
+% As this is a conservative system, total energy should remain constant.
 figure(4)
 set(gcf,'color','w')
 E = m*g*y + 0.5*m*(vx.^2 + vy.^2);
@@ -122,11 +124,11 @@ plot(timeStore,E);
 xlabel('Time (s)')
 ylabel('System energy (J)')
 
-%% animate
+%% Animate the bipedal walker
 figure(5)
 set(gcf, 'color','w'); %,'Position', get(0, 'Screensize'));
 
-% Plot the mass
+% Plot the initial state
 hold on
 leg_stance   = plot([xf(1),x(1)],[0,y(1)],'k-','linewidth',2);
 mass_point = plot(x(1),y(1),'ro','markerfacecolor','r','markersize',20);
