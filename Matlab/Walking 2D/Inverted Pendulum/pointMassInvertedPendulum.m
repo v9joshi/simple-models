@@ -130,14 +130,16 @@ set(gcf, 'color','w'); %,'Position', get(0, 'Screensize'));
 
 % Plot the initial state
 hold on
-leg_stance   = plot([xf(1),x(1)],[0,y(1)],'k-','linewidth',2);
-mass_point = plot(x(1),y(1),'ro','markerfacecolor','r','markersize',20);
-leg_swing  = plot([xf(1),x(1)],[0,y(1)],'b-','linewidth',2);
+leg_stance   = plot([xf(1) - x(1),x(1) - x(1)],[0,y(1)],'k-','linewidth',2);
+mass_point = plot(x(1) - x(1),y(1),'ro','markerfacecolor','r','markersize',20);
+leg_swing  = plot([xf(1) - x(1),x(1) - x(1)],[0,y(1)],'b-','linewidth',2);
 
-% Make some ground
-ground_pre = plot([xf(1), stepLength],[0,0],'color',[0,0.5,0],'LineStyle','--','linewidth',3);
-ground_mid = plot([xf(1),xf(1) + stepLength],[0,0],'color',[0,0.8,0],'LineStyle','--','linewidth',3);
-ground_post = plot([xf(1) + stepLength,xf(1) + 2*stepLength],[0,0],'color',[0,0.5,0],'LineStyle','--','linewidth',3);
+% Make ground for the animation
+ground_pre2  = plot([xf(1) - stepLength - x(1), xf(1) - x(1)],[0,0],'color',[0,0.8,0],'LineStyle','--','linewidth',3);
+ground_pre1  = plot([xf(1) - x(1), stepLength],[0,0],'color',[0,0.5,0],'LineStyle','--','linewidth',3);
+ground_mid   = plot([xf(1) - x(1),xf(1) + stepLength - x(1)],[0,0],'color',[0,0.8,0],'LineStyle','--','linewidth',3);
+ground_post1 = plot([xf(1) + stepLength - x(1),xf(1) + 2*stepLength - x(1)],[0,0],'color',[0,0.5,0],'LineStyle','--','linewidth',3);
+ground_post2 = plot([xf(1) + 2*stepLength - x(1),xf(1) + 3*stepLength - x(1)],[0,0],'color',[0,0.8,0],'LineStyle','--','linewidth',3);
 
 % Set axis properties
 set(gca,'visible','off')
@@ -158,9 +160,11 @@ for i = 2:20:length(timeStore)
        leg_swing = swap;
        
        % Change ground colors at step
-       ground_pre.Color = ground_mid.Color;
-       ground_mid.Color = ground_post.Color;
-       ground_post.Color = ground_pre.Color;
+       ground_pre2.Color = ground_pre1.Color;
+       ground_pre1.Color = ground_mid.Color;
+       ground_mid.Color = ground_post1.Color;
+       ground_post1.Color = ground_pre1.Color;
+       ground_post2.Color = ground_pre2.Color;
        
        % Update the foot position
        currFoot = xf(i);
@@ -168,22 +172,25 @@ for i = 2:20:length(timeStore)
         
     % Change the mass locations
     set(mass_point,'ydata',y(i));
-    set(mass_point,'xdata',x(i));
+    set(mass_point,'xdata',x(i) - x(i));
  
     % Change the leg end-points
     set(leg_stance,'ydata',[0, y(i)])
-    set(leg_stance,'xdata',[xf(i), x(i)])
+    set(leg_stance,'xdata',[xf(i) - x(i), x(i) - x(i)])
     
     % Change the leg end-points
     set(leg_swing,'ydata',[0, y(i)])
-    set(leg_swing,'xdata',[2*x(i) - xf(i), x(i)])
+    set(leg_swing,'xdata',[2*x(i) - xf(i) - x(i), x(i) - x(i)])
     
     % Change the ground line
-    set(ground_pre,'xdata',[xf(i),xf(i) - stepLength])
-    set(ground_mid,'xdata',[xf(i),xf(i) + stepLength])
-    set(ground_post,'xdata',[xf(i) + stepLength,xf(i) + 2*stepLength])
-
-    axis([avgSpeed*i - 2*stepLength,avgSpeed*i + 2*stepLength, -1, 2]);
+    set(ground_pre2,'xdata',[xf(i) - stepLength - x(i), xf(i) - 2*stepLength - x(i)])
+    set(ground_pre1,'xdata',[xf(i) - x(i), xf(i) - stepLength - x(i)])
+    set(ground_mid,'xdata',[xf(i) - x(i),xf(i) + stepLength - x(i)])
+    set(ground_post1,'xdata',[xf(i) + stepLength - x(i), xf(i) + 2*stepLength - x(i)])
+    set(ground_post2,'xdata',[xf(i) + 2*stepLength - x(i), xf(i) + 3*stepLength - x(i)])
+    
+    axis([-2*stepLength, 2*stepLength, -1, 2]);
+%     axis([avgSpeed*i - 2*stepLength,avgSpeed*i + 2*stepLength, -1, 2]);
         
     pause(0.01);
 end
