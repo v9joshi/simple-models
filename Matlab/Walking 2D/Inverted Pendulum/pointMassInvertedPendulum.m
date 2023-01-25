@@ -1,4 +1,4 @@
-    % 2-D inverted pendlum walker
+% 2-D inverted pendlum walker
 % The walker has a point-mass and point-feet. In each step the mass moves
 % in an inverted pendulum motion over the stance-foot. Push-off and
 % heel-strike happen simultaneously such that the double-support period is
@@ -6,11 +6,12 @@
 close all;
 
 % Set the parameters
-g = 10;           % acceleration due to gravity
-L0 = 1;           % Length of the leg
-m  = 1;           % Mass of the human, concentrated at a single point
+g = 10;                   % acceleration due to gravity
+L0 = 1;                   % Length of the leg
+m  = 1;                   % Mass of the human, concentrated at a single point
 
-stepLength = 0.7;        % The target step length
+stepLength = 0.45;        % The target step length
+
 % Step length can't be larger than sqrt(20)*L0/3 
 stepLength = min(stepLength,sqrt(20)*L0/3); 
 
@@ -18,7 +19,7 @@ stepLength = min(stepLength,sqrt(20)*L0/3);
 params.g = g; params.L0 = L0; params.m = m; params.stepLength = stepLength;
 
 % Initial conditions
-x0 = 0;  vx0 = 1.2;         % Start at mid-stance with some forward velocity
+x0 = 0;  vx0 = 1.2;       % Start at mid-stance with some forward velocity
 y0 = sqrt(L0^2 - x0^2);   % Enforce inverted pendulum constraint
 vy0 = 0;                  % No velocity along the leg                          
 footX = 0;                % Initial foot position

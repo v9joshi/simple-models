@@ -1,6 +1,6 @@
 % Function to apply heel-strike and push-off impulses to a 2D inverted
 % pendulum walker and ensure it continues to move in a 2D inverted
-% pendulum.
+% pendulum manner.
 function stateOut =  Contact_2DInvertedPendulum(~,statevar,params)
     % Unpack the parameters
     g = params.g; L0 = params.L0; m = params.m; stepLength = params.stepLength;    
