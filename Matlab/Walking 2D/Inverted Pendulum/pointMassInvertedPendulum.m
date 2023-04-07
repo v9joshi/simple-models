@@ -10,10 +10,10 @@ g = 10;                   % acceleration due to gravity
 L0 = 1;                   % Length of the leg
 m  = 1;                   % Mass of the human, concentrated at a single point
 
-stepLength = 0.45;        % The target step length
+stepLength = 0.49;        % The target step length
 
-% Step length can't be larger than sqrt(20)*L0/3 
-stepLength = min(stepLength,sqrt(20)*L0/3); 
+% Step length can't be larger than L0/2
+stepLength = min(stepLength,L0/2); 
 
 % Pack parameters
 params.g = g; params.L0 = L0; params.m = m; params.stepLength = stepLength;
@@ -30,7 +30,7 @@ footX = 0;                % Initial foot position
 % an upper bound. 
 % We can calculate the exact upper bound using the step-length.
 hmin = sqrt(L0^2 - stepLength^2/4);
-vx0  = min(vx0, sqrt(3*g*hmin - 2*g*L0));
+vx0  = min(vx0, sqrt(2*g*hmin - g*L0));
 
 if vx0 == 0
     disp("can't walk forward due to low speed")
